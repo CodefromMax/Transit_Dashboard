@@ -5,5 +5,6 @@ This document will record the sources for the census data used for this tool.
 
 - boundaries files also available in dissemination areas (DAs) or dissemination blocks (DBs) is needed
 - the CTs for Toronto starts with 535, for now the filter is from 5350001 - 5350300 for the "Central Toronto" area
+- centroid calculation is done by geopandas builtin: geopandas.geometry.centroid
 
 ## Census Data
