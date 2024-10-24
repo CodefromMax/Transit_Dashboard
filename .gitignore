@@ -2,3 +2,5 @@ API_creds.py
 extracted/
 .DS_Store
 ontario/
+boundaries_visualziation/
+census_tract_data/
