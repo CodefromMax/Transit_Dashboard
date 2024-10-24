@@ -2,3 +2,4 @@ API_creds.py
 extracted/
 .DS_Store
 ontario/
+temp*
