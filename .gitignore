@@ -6,4 +6,9 @@ temp*
 transit/
 data/census/lct_000b21a_e
 .vscode
-**__pycache__
+boundaries_visualziation/
+census_tract_data/
+key_destination_data/
+results/
+prepare_data/
+
