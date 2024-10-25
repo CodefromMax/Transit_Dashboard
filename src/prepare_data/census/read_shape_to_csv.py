@@ -1,18 +1,24 @@
 import geopandas as gpd 
-import pandas as pd 
+import pandas as pd
+from helper.find_project_root import find_project_root
 
-# Path to shape file
-SHAPE_PATH = "/Users/ninajiang/Desktop/Capstone_Trasnforming_Transit_Access/Transit_Dashboard/data/temp_census/lct_000b21a_e/lct_000b21a_e.shp"
-gdf = gpd.read_file(SHAPE_PATH)
+def main():
+    # Path to shape file
+    
+    root_path = find_project_root("Transit_Dashboard")
+    SHAPE_PATH = f"{root_path}/data/census/lct_000b21a_e/lct_000b21a_e.shp"
+    gdf = gpd.read_file(SHAPE_PATH)
 
-toronto_gdf = gdf[gdf['CTUID'].str.startswith('535')]
-toronto_gdf['centroid'] = toronto_gdf.geometry.centroid
+    toronto_gdf = gdf[gdf['CTUID'].str.startswith('535')]
+    toronto_gdf['centroid'] = toronto_gdf.geometry.centroid
 
-df = pd.DataFrame(toronto_gdf)
+    df = pd.DataFrame(toronto_gdf)
 
-OUTPUT_PATH = "/Users/ninajiang/Desktop/Capstone_Trasnforming_Transit_Access/Transit_Dashboard/data/temp_census/toronto_ct_boundaries_centroids.csv"
-df.to_csv(OUTPUT_PATH, index=False)
+    OUTPUT_PATH = f"{root_path}/data/census/toronto_ct_boundaries_centroids.csv"
+    df.to_csv(OUTPUT_PATH, index=False)
 
-print("Saved to Destination")
+    print("Saved to Destination")
 
 
+if __name__ == "__main__":
+    main()

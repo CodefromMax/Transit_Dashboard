@@ -3,3 +3,7 @@ extracted/
 .DS_Store
 ontario/
 temp*
+transit/
+data/census/lct_000b21a_e
+.vscode
+**__pycache__
