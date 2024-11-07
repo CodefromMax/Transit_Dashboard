@@ -1,0 +1,8 @@
+1. Error with installing r5py
+
+Update libcxx
+The error message suggests an issue with libcxx. You could try updating libcxx to a version compatible with jpype1:
+
+conda install -c conda-forge libcxx=15
+
+python=3.12.7=h99e199e_0
