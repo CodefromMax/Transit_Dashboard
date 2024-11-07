@@ -9,6 +9,17 @@
 </head>
 <body>
     <div id="map"></div>
+    <div id="overlayConfirm" class="overlay-dialog" style="display: none;">
+        <p>Do you want to drop a pin here?</p>
+        <button id="overlayYes">Yes</button>
+        <button id="overlayNo">No</button>
+    </div>
+    <!-- Mode Switcher at the Bottom Center -->
+    <div class="mode-switch">
+        <div class="switch-label">View Mode</div>
+        <input type="checkbox" id="modeToggle" />
+        <div class="switch-label">Create Mode</div>
+    </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.js"></script>
     <script src="https://unpkg.com/proj4leaflet"></script>

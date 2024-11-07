@@ -7,18 +7,35 @@ let map = L.map('map').setView([x, y], z);
 let geojson;
 proj4.defs("EPSG:3347", "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=63.390675 +lon_0=-91.866667 +x_0=6200000 +y_0=3000000 +datum=NAD83 +units=m +no_defs");
 
+// function highlightFeature(e) {
+//     var layer = e.target;
+
+//     layer.setStyle({
+//         weight: 5,
+//         color: '#666',
+//         dashArray: '',
+//         fillOpacity: 0.7
+//     });
+
+//     layer.bringToFront();
+//     info.update(layer.feature.properties);
+// }
+
 function highlightFeature(e) {
-    var layer = e.target;
-
-    layer.setStyle({
-        weight: 5,
-        color: '#666',
-        dashArray: '',
-        fillOpacity: 0.7
-    });
-
-    layer.bringToFront();
-    info.update(layer.feature.properties);
+  // Only highlight when not in Create Mode
+  if (!isCreateMode) {
+      var layer = e.target;
+  
+      layer.setStyle({
+          weight: 5,
+          color: '#666',
+          dashArray: '',
+          fillOpacity: 0.7
+      });
+  
+      layer.bringToFront();
+      info.update(layer.feature.properties);
+  }
 }
 
 function resetHighlight(e) {
@@ -140,6 +157,106 @@ fetch('http://localhost:8000/data/census/toronto_ct_boundaries_random_metric.geo
 
   })
   .catch(error => console.error('Error loading GeoJSON:', error))
+
+//   // Function to add a marker at the clicked location
+//   function onMapClick(e) {
+//     // Show a confirmation dialog
+//     const dropPin = confirm("Do you want to drop a pin here?");
+    
+//     // If the user confirms, add the pin
+//     if (dropPin) {
+//         const marker = L.marker(e.latlng).addTo(map);
+        
+//         // Optionally, add a popup to the marker
+//         marker.bindPopup("You dropped a pin here!<br>Latitude: " + e.latlng.lat.toFixed(5) + "<br>Longitude: " + e.latlng.lng.toFixed(5)).openPopup();
+//     }
+// }
+
+// // Attach the click event to the map to call onMapClick when the map is clicked
+// map.on('click', onMapClick);
+
+
+// Mode toggle checkbox
+const modeToggle = document.getElementById('modeToggle');
+
+// Variable to store the current mode
+let isCreateMode = false; // Default mode is "View Mode"
+
+// Switch mode when checkbox is toggled
+modeToggle.onchange = function() {
+    isCreateMode = !isCreateMode;  // Toggle the mode
+    if (isCreateMode) {
+        modeToggle.nextElementSibling.textContent = "Create Mode"; // Update label to "Create Mode"
+    } else {
+        modeToggle.nextElementSibling.textContent = "Create Mode"; // Update label to "View Mode"
+    }
+};
+
+
+
+// Reference to the overlay dialog and buttons
+const overlayConfirm = document.getElementById('overlayConfirm');
+const overlayYes = document.getElementById('overlayYes');
+const overlayNo = document.getElementById('overlayNo');
+
+// Function to add a marker after user confirms
+function addMarker(latlng) {
+    const marker = L.marker(latlng).addTo(map);
+    marker.bindPopup("You dropped a pin here!<br>Latitude: " + latlng.lat.toFixed(5) + "<br>Longitude: " + latlng.lng.toFixed(5)).openPopup();
+}
+
+// Function to handle the map click and show the overlay dialog
+function onMapClick(e) {
+    console.log("Map clicked, showing confirm dialog."); // Log click event
+    
+    const { latlng, originalEvent } = e;
+    
+    // Check if the event contains page coordinates
+    if (originalEvent && originalEvent.pageX && originalEvent.pageY) {
+        // Set overlay position based on the cursor coordinates
+        overlayConfirm.style.left = originalEvent.pageX + 'px';
+        overlayConfirm.style.top = originalEvent.pageY + 'px';
+        console.log("Position set to:", originalEvent.pageX, originalEvent.pageY); // Log coordinates
+    } else {
+        console.error("originalEvent is missing page coordinates.");
+    }
+    
+    // Show the overlay dialog
+    overlayConfirm.style.display = 'block';
+
+    map.dragging.disable();
+    map.scrollWheelZoom.disable();
+    map.doubleClickZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+
+    // Clear any previous click handlers to avoid duplicates
+    overlayYes.onclick = overlayNo.onclick = null;
+
+    // Handle the "Yes" button click to add marker
+    overlayYes.onclick = function() {
+        console.log("User confirmed pin drop.");
+        addMarker(latlng);
+        overlayConfirm.style.display = 'none'; // Hide the dialog
+    };
+
+    // Handle the "No" button click to simply hide the dialog
+    overlayNo.onclick = function() {
+        console.log("User canceled pin drop.");
+        overlayConfirm.style.display = 'none';
+    };
+}
+
+function reEnableMapInteractions() {
+  map.dragging.enable();
+  map.scrollWheelZoom.enable();
+  map.doubleClickZoom.enable();
+  map.boxZoom.enable();
+  map.keyboard.enable();
+}
+
+// Attach the click event to the map
+map.on('click', onMapClick);
 
 
 

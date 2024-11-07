@@ -27,3 +27,89 @@
     margin-right: 8px;
     opacity: 0.7;
 }
+
+.overlay-dialog {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 200px;
+    font-family: Arial, sans-serif;
+    display: none; /* Hide by default */
+}
+
+.overlay-dialog p {
+    margin: 0 0 10px;
+}
+
+.overlay-dialog button {
+    margin: 0 5px;
+}
+
+.overlay-dialog button {
+margin: 5px;
+}
+
+/* Positioning and styling the switch */
+.mode-switch {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 10px 20px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    z-index: 9999; /* Ensure switch is always on top */
+}
+
+.switch-label {
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+#modeToggle {
+    width: 60px;
+    height: 30px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ccc;
+    border-radius: 30px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out; /* Smooth background transition */
+}
+
+#modeToggle:checked {
+    background: #4CAF50;
+}
+
+#modeToggle:checked::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 30px; /* Position of the knob when checked */
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+#modeToggle::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px; /* Position of the knob when unchecked */
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
