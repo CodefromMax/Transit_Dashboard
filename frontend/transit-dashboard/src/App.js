@@ -1,0 +1,135 @@
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import CensusLayer from './components/layers/CensusLayer';
+import GTFSLayer from './components/layers/GTFSLayer';
+import CensusLegend from './components/legends/CensusLegend';
+import GTFSLegend from './components/legends/GTFSLegend';
+import ToggleLayerControl from './components/controls/ToggleLayerControl';
+import proj4 from 'proj4';
+import StopsLayer from './components/layers/StopsLayer';
+
+proj4.defs(
+  'EPSG:3347',
+  '+proj=lcc +lat_1=49 +lat_2=77 +lat_0=63.390675 +lon_0=-91.866667 +x_0=6200000 +y_0=3000000 +datum=NAD83 +units=m +no_defs'
+);
+
+const reprojectCoordinates = (coords) => {
+  return coords.map(coord => {
+    if (Array.isArray(coord[0])) {
+      return reprojectCoordinates(coord);
+    } else if (isFinite(coord[0]) && isFinite(coord[1])) {
+      return proj4('EPSG:3347', 'EPSG:4326', coord);
+    } else {
+      console.error('Invalid coordinate pair:', coord);
+      return coord;
+    }
+  });
+};
+
+const App = () => {
+  const center = [43.5883, -79.3323];
+  const zoom = 10;
+
+  // State for toggling layers
+  const [showCensusLayer, setShowCensusLayer] = useState(true);
+  const [showGTFSLayer, setShowGTFSLayer] = useState(true);
+  const [showStopsLayer, setShowStopsLayer] = useState(true);
+  
+  // State to store fetched data
+  const [censusData, setCensusData] = useState(null);
+  const [gtfsData, setGtfsData] = useState(null);
+  const [stopsData, setStopsData] = useState(null);
+  const [shapeColorMap, setShapeColorMap] = useState({});
+
+  // Fetch Census data once
+  useEffect(() => {
+    fetch('data/census/toronto_ct_boundaries_random_metric.geojson')
+      .then(response => response.json())
+      .then(data => {
+        
+        const reprojectedData = JSON.parse(JSON.stringify(data)); // Deep copy to avoid mutating original data
+        reprojectedData.features.forEach((feature) => {
+          if (feature.geometry.type === 'Polygon') {
+            feature.geometry.coordinates = reprojectCoordinates(feature.geometry.coordinates);
+          } else if (feature.geometry.type === 'MultiPolygon') {
+            feature.geometry.coordinates = feature.geometry.coordinates.map((polygon) =>
+              reprojectCoordinates(polygon)
+            );
+          }
+        });
+        setCensusData(reprojectedData); 
+        console.log('Fetched Census')
+      })
+      .catch(error => console.error('Error loading Census GeoJSON:', error));
+  }, []);
+
+  // Fetch GTFS data once
+  useEffect(() => {
+    fetch('data/GTFS_data/gtfs_subway_lines.geojson')
+      .then(response => response.json())
+      .then(data => {
+        setGtfsData(data); // Set fetched data
+        console.log('Fetched GTFS')
+        // Set a sample color map for GTFSLayer (can adjust logic as needed)
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6'];
+        const map = data.features.reduce((acc, feature, index) => {
+          acc[feature.properties.shape_id] = colors[index % colors.length];
+          return acc;
+        }, {});
+        setShapeColorMap(map);
+      })
+      .catch(error => console.error('Error loading GTFS GeoJSON:', error));
+  }, []);
+
+  // Fetch GTFS data once
+  useEffect(() => {
+    fetch('data/GTFS_data/gtfs_subway_stops.geojson') // Update this URL if needed
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Fetched Stops GeoJSON:', data); // Debug fetched data
+        setStopsData(data);
+      })
+      .catch((error) => console.error('Error loading Stops GeoJSON:', error));
+  }, []);
+
+  
+  return (
+    <div>
+      {/* Toggle Controls */}
+      <div>
+        <ToggleLayerControl
+          label="Show Census Heatmap"
+          isChecked={showCensusLayer}
+          onToggle={() => setShowCensusLayer(!showCensusLayer)}
+        />
+        <ToggleLayerControl
+          label="Show GTFS Lines"
+          isChecked={showGTFSLayer}
+          onToggle={() => setShowGTFSLayer(!showGTFSLayer)}
+        />
+        <ToggleLayerControl
+          label="Show Stops"
+          isChecked={showStopsLayer}
+          onToggle={() => setShowStopsLayer(!showStopsLayer)}
+        />
+      </div>
+      <MapContainer center={center} zoom={zoom} id="map" style={{ height: "100vh" }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+
+        {/* Conditionally render layers with fetched data */}
+        {showCensusLayer && censusData && <CensusLayer data={censusData} />}
+        {showGTFSLayer && gtfsData && <GTFSLayer data={gtfsData} colorMap={shapeColorMap} />}
+        {showStopsLayer && stopsData && <StopsLayer data={stopsData} />}
+      </MapContainer>
+
+      {/* Conditionally render legends */} 
+      {showCensusLayer && <CensusLegend />}
+      {showGTFSLayer && <GTFSLegend shapeColorMap={shapeColorMap} />}
+    </div>
+  );
+};
+
+export default App;

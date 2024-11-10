@@ -139,55 +139,14 @@ fetch('http://localhost:8000/data/census/toronto_ct_boundaries_random_metric.geo
     }).addTo(map);
 
   })
-  .catch(error => console.error('Error loading GeoJSON:', error))
+  .catch(error => console.error('Error loading Census GeoJSON:', error))
 
+fetch('http://localhost:8000/data/GTFS_data/gtfs_lines.geojson')
+  .then(response => response.json())
+  .then(data => {
+      geojson = L.geoJson(data,{
+        onEachFeature: onEachFeature
+      }).addTo(map);
+  })
+  .catch(error => console.error('Error loading GTFS GeoJson:', error))
 
-
-
-
-// // Simulated GTFS stop data
-// const stops = [
-//     { stop_id: '1', stop_name: 'Station 1', stop_lat: 51.505, stop_lon: -0.09 },
-//     { stop_id: '2', stop_name: 'Station 2', stop_lat: 51.51, stop_lon: -0.1 }
-// ];
-
-// // Function to load and display GTFS stops on the map
-// function loadStops(stops) {
-//     stops.forEach(stop => {
-//         L.marker([stop.stop_lat, stop.stop_lon])
-//             .addTo(map)
-//             .bindPopup(stop.stop_name);
-//     });
-// // }
-
-// // Load the initial stops from the simulated GTFS data
-// loadStops(stops);
-
-// // Click event to allow adding new stops interactively
-// map.on('click', function (e) {
-//     // Get the latitude and longitude of the click event
-//     const newStopLat = e.latlng.lat;
-//     const newStopLon = e.latlng.lng;
-
-//     // Prompt the user to enter a stop name
-//     const stopName = prompt('Enter stop name for the new station:');
-//     if (stopName) {
-//         // Add new stop marker to the map
-//         const newMarker = L.marker([newStopLat, newStopLon])
-//             .addTo(map)
-//             .bindPopup(stopName);
-
-//         // Optionally, simulate adding the new stop to the GTFS data (client-side only for now)
-//         const newStop = {
-//             stop_id: Math.random().toString(36).substring(2, 15), // Generate a random stop ID
-//             stop_name: stopName,
-//             stop_lat: newStopLat,
-//             stop_lon: newStopLon
-//         };
-
-//         // Add the new stop to the list of stops (for simulation purposes)
-//         stops.push(newStop);
-
-//         console.log('New stop added:', newStop);
-//     }
-// });
