@@ -35,3 +35,6 @@ export PYTHONPATH="${PYTHONPATH}:/Users/user/Documents/Capstone/Transit_Dashboar
 
 1. Run 'python -m http.server 8000 in the Transit_Dashboard directory
 2. http://localhost:8000/visualization/public/index.html
+
+## Frontend CSS not Updating
+-> force refresh with Ctrl+F5 (Windows/Linux) or CMD+Shift+R (Mac)
