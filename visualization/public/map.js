@@ -45,7 +45,9 @@ function resetHighlight(e) {
 
 
 function zoomToFeature(e) {
-    map.fitBounds(e.target.getBounds());
+    if (!isCreateMode) {
+        map.fitBounds(e.target.getBounds());
+    }
 }
 
 function onEachFeature(feature, layer) {
@@ -187,70 +189,356 @@ modeToggle.onchange = function() {
     isCreateMode = !isCreateMode;  // Toggle the mode
     if (isCreateMode) {
         modeToggle.nextElementSibling.textContent = "Create Mode"; // Update label to "Create Mode"
+        map.doubleClickZoom.disable();
+        map.boxZoom.disable();
+        console.log("[Toggle]: Create Mode")
     } else {
         modeToggle.nextElementSibling.textContent = "Create Mode"; // Update label to "View Mode"
+        map.doubleClickZoom.enable();
+        map.boxZoom.enable();
+        console.log("[Toggle]: View Mode")
     }
 };
 
+
+// function parseQuery(query) {
+//   const parts = query.split(/\s+/); // Split by whitespace
+//   if (parts.length === 1) {
+//       return parts[0]; // Single street or place
+//   } else if (parts.length === 2) {
+//       return `${parts[0]} & ${parts[1]}`; // Assume intersection
+//   } else {
+//       return query; // Full query as-is for more complex search
+//   }
+// }
+
+// document.getElementById('searchButton').addEventListener('click', function() {
+//   const query = document.getElementById('searchInput').value;
+
+//   if (query) {
+//       const formattedQuery = parseQuery(query);
+//       fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(formattedQuery)}&format=json&addressdetails=1`)
+//           .then(response => response.json())
+//           .then(data => {
+//               if (data && data.length > 0) {
+//                   const firstResult = data[0];
+//                   const lat = parseFloat(firstResult.lat);
+//                   const lon = parseFloat(firstResult.lon);
+
+//                   // Move the map to the result location
+//                   map.setView([lat, lon], 15); 
+
+//                   highlightedLayer = L.circle([lat, lon], {
+//                     color: 'blue',       // Color of the circle border
+//                     fillColor: 'blue',   // Fill color inside the circle
+//                     fillOpacity: 0.4,   // Transparency of the fill
+//                     radius: 100         // Radius of the circle (in meters)
+//                     }).addTo(map);
+
+//                   // // Add a marker to the map for the result
+//                   // L.marker([lat, lon]).addTo(map)
+//                   //   .bindPopup(`Search Result: ${firstResult.display_name}`)
+//                   //   .openPopup();
+//               } else {
+//                   alert('No results found for this query. Try a different location or intersection.');
+//               }
+//           })
+//           .catch(error => {
+//               console.error('Error during search:', error);
+//               alert('Error fetching search results.');
+//           });
+//   }
+// });
+
+let highlightedLayer = null;  // To store the highlighted layer
+
+document.getElementById('searchButton').addEventListener('click', function() {
+    const query = document.getElementById('searchInput').value.trim();
+
+    if (query) {
+        const formattedQuery = parseQuery(query);
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(formattedQuery)}, Toronto&format=json&addressdetails=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    handleSearchResults(data, query);  // Pass the query to identify intersection or location
+                } else {
+                    alert('No results found. Try being more specific.');
+                }
+            })
+            .catch(error => {
+                console.error('Search failed:', error);
+                alert('Error fetching search results.');
+            });
+    }
+});
+
+const streetSuffixes = {
+  'st': 'Street',
+  'ave': 'Avenue',
+  'rd': 'Road',
+  'blvd': 'Boulevard',
+  'dr': 'Drive',
+  'cres': 'Crescent',
+  'pt': 'Parkway',
+  'sq': 'Square',
+  'hwy': 'Highway'
+};
+
+// This function determines if the query is a street intersection or a location
+function parseQuery(query) {
+  const parts = query.split(/\s+/); // Split by whitespace
+  if (parts.length === 1) {
+      return parts[0]; // Single street or place
+  } else if (parts.length === 2) {
+      return `${parts[0]} & ${parts[1]}`; // Assume intersection
+  }else if (query.includes(' and ') || query.includes(' & ') || query.includes(' at ')) {
+      const intersection = query.toLowerCase().split(" and ");
+      return `${intersection[0]} & ${intersection[1]}`;
+  } else {
+      return query; // Full query as-is for more complex search
+  }
+}
+// function parseQuery(query) {
+//     // Check if the query seems like an intersection (two street names, separated by 'and' or '&')
+//     if (query.includes(' and ') || query.includes(' & ') || query.includes(' at ')) {
+//         return query; // It is likely an intersection
+//     }
+//     return query; // Otherwise treat it as a location
+// }
+
+// Handle search results and highlight the correct feature
+function handleSearchResults(results, query) {
+    const topResult = results[0];
+    const lat = parseFloat(topResult.lat);
+    const lon = parseFloat(topResult.lon);
+
+    // Move map to the location
+    map.setView([lat, lon], 15);
+
+    // Remove previous highlighted layer (if any)
+    if (highlightedLayer) {
+        map.removeLayer(highlightedLayer);
+    }
+
+    // Determine if the query was an intersection or a location
+    if (query.includes(' and ') || query.includes(' & ') || query.includes(' at ')) {
+        highlightStreetIntersection(query, lat, lon);  // Highlight the street intersection
+    } else {
+        highlightLocation(lat, lon, topResult.display_name);  // Highlight the location (e.g., landmark)
+    }
+}
+
+// Highlight the street intersection (using a circle or custom marker)
+function highlightStreetIntersection(query, lat, lon) {
+    highlightedLayer = L.circle([lat, lon], {
+        color: 'blue',
+        fillColor: 'blue',
+        fillOpacity: 0.4,
+        radius: 100
+    }).addTo(map);
+
+    const label = L.divIcon({
+        className: 'bold-label',
+        html: `<div style="font-weight: bold; color: blue; font-size: 16px;">Intersection: ${query}</div>`,
+        iconSize: [200, 30]
+    });
+
+    // // Add the label to the map at the intersection location
+    // L.marker([lat, lon], { icon: label }).addTo(map);
+
+    // // Add a marker for the intersection with a popup
+    // L.marker([lat, lon]).addTo(map)
+    //     .bindPopup(`Intersection: <br><b>${query}</b>`)
+    //     .openPopup();
+}
+
+// Highlight the location (e.g., landmark or neighborhood)
+function highlightLocation(lat, lon, locationName) {
+    highlightedLayer = L.circle([lat, lon], {
+        color: 'green',
+        fillColor: 'green',
+        fillOpacity: 0.4,
+        radius: 100
+    }).addTo(map);
+
+    const label = L.divIcon({
+        className: 'bold-label',
+        html: `<div style="font-weight: bold; color: green; font-size: 16px;">Location: ${locationName}</div>`,
+        iconSize: [200, 30]
+    });
+
+    // // Add the label to the map at the location
+    // L.marker([lat, lon], { icon: label }).addTo(map);
+
+    // // Add a marker for the location with a popup
+    // L.marker([lat, lon]).addTo(map)
+    //     .bindPopup(`Location: <br><b>${locationName}</b>`)
+    //     .openPopup();
+}
 
 
 // Reference to the overlay dialog and buttons
 const overlayConfirm = document.getElementById('overlayConfirm');
 const overlayYes = document.getElementById('overlayYes');
 const overlayNo = document.getElementById('overlayNo');
+let pinCounter = 0;
 
-// Function to add a marker after user confirms
+// Function to add a marker and display the closest road type along with latitude and longitude
 function addMarker(latlng) {
-    const marker = L.marker(latlng).addTo(map);
-    marker.bindPopup("You dropped a pin here!<br>Latitude: " + latlng.lat.toFixed(5) + "<br>Longitude: " + latlng.lng.toFixed(5)).openPopup();
+  // Reverse geocoding to get the closest road/area
+  const apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json&addressdetails=1`;
+
+  fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+          // Get the closest road/area name from the returned data
+          const road = data.address.road || data.address.avenue || data.address.boulevard ||
+              data.address.footway || data.address.path || data.address.pedestrian ||
+              data.address.highway || "Unknown Road"; // Fallback to "Unknown Road" if no suitable road is found
+
+          // Create the marker and bind a popup with latitude, longitude, and the closest road type
+          const marker = L.marker(latlng).addTo(map);
+          pinCounter++;
+          marker.bindPopup(`
+              You dropped a pin here!<br>
+              Latitude: ${latlng.lat.toFixed(5)}<br>
+              Longitude: ${latlng.lng.toFixed(5)}<br>
+              Closest Road: ${road}<br>
+              Number of Station (s): ${pinCounter}
+          `).openPopup();
+
+          // Handle the click event for the marker
+          marker.on('click', function() {
+              if (confirm("Do you want to remove this pin?")) {
+                  map.removeLayer(marker); // Remove marker from the map
+                  pinCounter --;
+              }
+          });
+      })
+      .catch(error => {
+          console.error('Error getting the closest road:', error);
+          // If there's an error, still add the marker but without the road info
+          const marker = L.marker(latlng).addTo(map);
+          marker.bindPopup(`
+              You dropped a pin here!<br>
+              Latitude: ${latlng.lat.toFixed(5)}<br>
+              Longitude: ${latlng.lng.toFixed(5)}<br>
+              Closest Road: Unknown
+          `).openPopup();
+      });
 }
 
 // Function to handle the map click and show the overlay dialog
 function onMapClick(e) {
-    console.log("Map clicked, showing confirm dialog."); // Log click event
-    
-    const { latlng, originalEvent } = e;
-    
-    // Check if the event contains page coordinates
-    if (originalEvent && originalEvent.pageX && originalEvent.pageY) {
-        // Set overlay position based on the cursor coordinates
-        overlayConfirm.style.left = originalEvent.pageX + 'px';
-        overlayConfirm.style.top = originalEvent.pageY + 'px';
-        console.log("Position set to:", originalEvent.pageX, originalEvent.pageY); // Log coordinates
-    } else {
-        console.error("originalEvent is missing page coordinates.");
-    }
-    
-    // Show the overlay dialog
-    overlayConfirm.style.display = 'block';
+  if (isCreateMode) {
+      console.log("Map clicked, showing confirm dialog."); // Log click event
 
-    map.dragging.disable();
-    map.scrollWheelZoom.disable();
-    map.doubleClickZoom.disable();
-    map.boxZoom.disable();
-    map.keyboard.disable();
+      const { latlng, originalEvent } = e;
 
-    // Clear any previous click handlers to avoid duplicates
-    overlayYes.onclick = overlayNo.onclick = null;
+      // Check if the event contains page coordinates
+      if (originalEvent && originalEvent.pageX && originalEvent.pageY) {
+          // Set overlay position based on the cursor coordinates
+          overlayConfirm.style.left = originalEvent.pageX + 'px';
+          overlayConfirm.style.top = originalEvent.pageY + 'px';
+          console.log("Position set to:", originalEvent.pageX, originalEvent.pageY); // Log coordinates
+      } else {
+          console.error("originalEvent is missing page coordinates.");
+      }
 
-    // Handle the "Yes" button click to add marker
-    overlayYes.onclick = function() {
-        console.log("User confirmed pin drop.");
-        addMarker(latlng);
-        overlayConfirm.style.display = 'none'; // Hide the dialog
-    };
+      // Show the overlay dialog
+      overlayConfirm.style.display = 'block';
 
-    // Handle the "No" button click to simply hide the dialog
-    overlayNo.onclick = function() {
-        console.log("User canceled pin drop.");
-        overlayConfirm.style.display = 'none';
-    };
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+      map.doubleClickZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+
+      // Clear any previous click handlers to avoid duplicates
+      overlayYes.onclick = overlayNo.onclick = null;
+
+      // Handle the "Yes" button click to add marker
+      overlayYes.onclick = function () {
+          console.log("User confirmed pin drop.");
+          addMarker(latlng); // Add the marker with closest road information
+          overlayConfirm.style.display = 'none'; // Hide the dialog
+          reEnableMapInteractions();
+      };
+
+      // Handle the "No" button click to simply hide the dialog
+      overlayNo.onclick = function () {
+          console.log("User canceled pin drop.");
+          overlayConfirm.style.display = 'none';
+          reEnableMapInteractions();
+      };
+  }
 }
+
+
+// // Function to add a marker after user confirms
+// function addMarker(latlng) {
+//     const marker = L.marker(latlng).addTo(map);
+//     marker.bindPopup("You dropped a pin here!<br>Latitude: " + latlng.lat.toFixed(5) + "<br>Longitude: " + latlng.lng.toFixed(5)).openPopup();
+//     marker.on('click', function() {
+//       if (confirm("Do you want to remove this pin?")) {
+//           map.removeLayer(marker); // Remove marker from the map
+//       }
+//   });
+// }
+
+// // Function to handle the map click and show the overlay dialog
+// function onMapClick(e) {
+//     if(isCreateMode){
+//         console.log("Map clicked, showing confirm dialog."); // Log click event
+        
+//         const { latlng, originalEvent } = e;
+        
+//         // Check if the event contains page coordinates
+//         if (originalEvent && originalEvent.pageX && originalEvent.pageY) {
+//             // Set overlay position based on the cursor coordinates
+//             overlayConfirm.style.left = originalEvent.pageX + 'px';
+//             overlayConfirm.style.top = originalEvent.pageY + 'px';
+//             console.log("Position set to:", originalEvent.pageX, originalEvent.pageY); // Log coordinates
+//         } else {
+//             console.error("originalEvent is missing page coordinates.");
+//         }
+        
+//         // Show the overlay dialog
+//         overlayConfirm.style.display = 'block';
+
+//         map.dragging.disable();
+//         map.scrollWheelZoom.disable();
+//         map.doubleClickZoom.disable();
+//         map.boxZoom.disable();
+//         map.keyboard.disable();
+
+//         // Clear any previous click handlers to avoid duplicates
+//         overlayYes.onclick = overlayNo.onclick = null;
+
+//         // Handle the "Yes" button click to add marker
+//         overlayYes.onclick = function() {
+//             console.log("User confirmed pin drop.");
+//             addMarker(latlng);
+//             overlayConfirm.style.display = 'none'; // Hide the dialog
+//             reEnableMapInteractions()
+//         };
+
+//         // Handle the "No" button click to simply hide the dialog
+//         overlayNo.onclick = function() {
+//             console.log("User canceled pin drop.");
+//             overlayConfirm.style.display = 'none';
+//             reEnableMapInteractions()
+//         };
+        
+//     }
+
+// }
 
 function reEnableMapInteractions() {
   map.dragging.enable();
   map.scrollWheelZoom.enable();
-  map.doubleClickZoom.enable();
+  // map.doubleClickZoom.enable();
   map.boxZoom.enable();
   map.keyboard.enable();
 }
