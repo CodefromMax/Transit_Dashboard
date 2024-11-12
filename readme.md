@@ -4,7 +4,7 @@ These steps are for Macbook, pasted in this to GPT to transfer for other OS.
 MINICONDA 
 
 1. If you don't have it, best advice is to chatgpt "install miniconda" on whatever hardware you are on
-2. Once installed, run conda 'env create -f environment.yml' in the Transit_Dashboard directory
+2. Once installed, run conda 'conda env create -f environment.yml' in the Transit_Dashboard directory
 3. That should create the python virtual environment, where you can run 'conda activate transit-env'
 4. When working on any notebooks in this repository, make sure to select this environment kernel
 
