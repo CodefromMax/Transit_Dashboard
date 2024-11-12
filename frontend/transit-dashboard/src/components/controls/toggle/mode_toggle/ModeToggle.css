@@ -1,0 +1,15 @@
+.toggle-layer-control {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+.toggle-layer-control .MuiFormControlLabel-label {
+  color: black;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toggle-layer-control input {
+  margin-right: 8px;
+}

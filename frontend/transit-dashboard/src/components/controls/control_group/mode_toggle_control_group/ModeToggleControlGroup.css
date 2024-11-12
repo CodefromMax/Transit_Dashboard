@@ -1,0 +1,22 @@
+.mode-toggle-control-group {
+  position: absolute;
+  top: 80px; /* Adjust position as needed */
+  right: 10px; /* Align with other controls */
+  width: 250px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.mode-toggle-control-group h6 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.mode-toggle-item {
+  margin-bottom: 10px;
+}
+
+.mode-toggle-item:last-child {
+  margin-bottom: 0;
+}

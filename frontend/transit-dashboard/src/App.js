@@ -4,9 +4,13 @@ import CensusLayer from './components/layers/CensusLayer';
 import GTFSLayer from './components/layers/GTFSLayer';
 import CensusLegend from './components/legends/CensusLegend';
 import GTFSLegend from './components/legends/GTFSLegend';
-import ToggleLayerControl from './components/controls/ToggleLayerControl';
+import LayerControlGroup from './components/controls/control_group/layer_control_group/LayerControlGroup';
+import ModeToggle from './components/controls/toggle/mode_toggle/ModeToggle';
+import ModeToggleControlGroup from './components/controls/control_group/mode_toggle_control_group/ModeToggleControlGroup';
+import MapClickHandler from './components/map/map_click_handler/MapClickHandler';
 import proj4 from 'proj4';
 import StopsLayer from './components/layers/StopsLayer';
+
 
 proj4.defs(
   'EPSG:3347',
@@ -30,8 +34,12 @@ const App = () => {
   const center = [43.5883, -79.3323];
   const zoom = 10;
 
+  // Edit or Edit + Delete Mode
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditDeleteMode, setIsEditDeleteMode] = useState(false);
+
   // State for toggling layers
-  const [showCensusLayer, setShowCensusLayer] = useState(true);
+  const [showCensusLayer, setShowCensusLayer] = useState(false);
   const [showGTFSLayer, setShowGTFSLayer] = useState(true);
   const [showStopsLayer, setShowStopsLayer] = useState(true);
   
@@ -41,9 +49,38 @@ const App = () => {
   const [stopsData, setStopsData] = useState(null);
   const [shapeColorMap, setShapeColorMap] = useState({});
 
+  const controls_layers = [
+    {
+      label: 'Show Census Heatmap',
+      isChecked: showCensusLayer,
+      onToggle: () => setShowCensusLayer(!showCensusLayer),
+    },
+    {
+      label: 'Show GTFS Lines',
+      isChecked: showGTFSLayer,
+      onToggle: () => setShowGTFSLayer(!showGTFSLayer),
+    },
+    {
+      label: 'Show Stops',
+      isChecked: showStopsLayer,
+      onToggle: () => setShowStopsLayer(!showStopsLayer),
+    },
+  ];
+  
+  const toggleMode = () => {
+    setIsEditMode(!isEditMode);
+    if (!isEditMode) {
+      setIsEditDeleteMode(false); // Disable edit/delete when switching to view mode
+    }
+  };
+
+  const toggleEditDeleteMode = () => {
+    setIsEditDeleteMode(!isEditDeleteMode);
+  };
+
   // Fetch Census data once
   useEffect(() => {
-    fetch('data/census/toronto_ct_boundaries_random_metric.geojson')
+    fetch('/api/data/census/toronto_ct_boundaries_random_metric.geojson')
       .then(response => response.json())
       .then(data => {
         
@@ -65,7 +102,7 @@ const App = () => {
 
   // Fetch GTFS data once
   useEffect(() => {
-    fetch('data/GTFS_data/gtfs_subway_lines.geojson')
+    fetch('api/data/GTFS_data/gtfs_subway_lines.geojson')
       .then(response => response.json())
       .then(data => {
         setGtfsData(data); // Set fetched data
@@ -83,7 +120,7 @@ const App = () => {
 
   // Fetch GTFS data once
   useEffect(() => {
-    fetch('data/GTFS_data/gtfs_subway_stops.geojson') // Update this URL if needed
+    fetch('api/data/GTFS_data/gtfs_subway_stops.geojson') // Update this URL if needed
       .then((response) => response.json())
       .then((data) => {
         console.log('Fetched Stops GeoJSON:', data); // Debug fetched data
@@ -94,40 +131,32 @@ const App = () => {
 
   
   return (
-    <div>
-      {/* Toggle Controls */}
-      <div>
-        <ToggleLayerControl
-          label="Show Census Heatmap"
-          isChecked={showCensusLayer}
-          onToggle={() => setShowCensusLayer(!showCensusLayer)}
-        />
-        <ToggleLayerControl
-          label="Show GTFS Lines"
-          isChecked={showGTFSLayer}
-          onToggle={() => setShowGTFSLayer(!showGTFSLayer)}
-        />
-        <ToggleLayerControl
-          label="Show Stops"
-          isChecked={showStopsLayer}
-          onToggle={() => setShowStopsLayer(!showStopsLayer)}
-        />
-      </div>
-      <MapContainer center={center} zoom={zoom} id="map" style={{ height: "100vh" }}>
+    <div style={{ position: 'relative' }}>
+      <LayerControlGroup controls={controls_layers} />
+      <ModeToggleControlGroup
+        ModeToggle={
+          <ModeToggle
+            isEditMode={isEditMode}
+            isEditDeleteMode={isEditDeleteMode}
+            toggleMode={toggleMode}
+            toggleEditDeleteMode={toggleEditDeleteMode}
+          />
+        }
+      />
+      <MapContainer center={center} zoom={zoom} style={{ height: '100vh' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {/* Conditionally render layers with fetched data */}
-        {showCensusLayer && censusData && <CensusLayer data={censusData} />}
+        {showCensusLayer && censusData && <CensusLayer data={censusData}/>}
         {showGTFSLayer && gtfsData && <GTFSLayer data={gtfsData} colorMap={shapeColorMap} />}
-        {showStopsLayer && stopsData && <StopsLayer data={stopsData} />}
+        {showStopsLayer && stopsData && <StopsLayer data={stopsData}/>}
+        <MapClickHandler isEditMode={isEditMode} isEditDeleteMode={isEditDeleteMode} />
       </MapContainer>
 
-      {/* Conditionally render legends */} 
-      {showCensusLayer && <CensusLegend />}
-      {showGTFSLayer && <GTFSLegend shapeColorMap={shapeColorMap} />}
+      {showCensusLayer && censusData && <CensusLegend />}
+      {showGTFSLayer && gtfsData && <GTFSLegend shapeColorMap={shapeColorMap} />}
     </div>
   );
 };
