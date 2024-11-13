@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Marker, Polyline, useMapEvents, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import './MapClickHandler.css';
 
-const MapClickHandler = ({ isEditMode, isEditDeleteMode }) => {
-  const [clickData, setClickData] = useState([]);
+const MapClickHandler = ({ isEditMode, isEditDeleteMode, clickData, setClickData }) => {
 
-  // Add a new marker
   const addMarker = (latlng, type) => {
     setClickData((prevData) => [
       ...prevData,
@@ -19,7 +17,6 @@ const MapClickHandler = ({ isEditMode, isEditDeleteMode }) => {
     ]);
   };
 
-  // Update marker position
   const updateMarkerPosition = (id, latlng) => {
     setClickData((prevData) =>
       prevData.map((data) =>
@@ -34,28 +31,23 @@ const MapClickHandler = ({ isEditMode, isEditDeleteMode }) => {
     );
   };
 
-  // Delete a marker
   const deleteMarker = (id) => {
     setClickData((prevData) => {
-      // Filter out the marker to be deleted
+  
       const updatedData = prevData.filter((data) => data.id !== id);
-
-      // Reassign IDs dynamically based on the new order
       return updatedData.map((data, index) => ({
         ...data,
-        id: index + 1, // Reassign sequential IDs
+        id: index + 1,
       }));
     });
   };
 
   const lineCoordinates = clickData.map((data) => [data.lat, data.lng]);
 
-  // Map event handlers
   useMapEvents({
     click: (e) => {
       if (isEditMode && !isEditDeleteMode) {
-        // Single click in edit mode to add markers
-        const isStation = e.originalEvent.shiftKey; // Use Shift key for stations
+        const isStation = e.originalEvent.shiftKey;
         addMarker(e.latlng, isStation ? 'station' : 'waypoint');
       }
     },
@@ -69,7 +61,7 @@ const MapClickHandler = ({ isEditMode, isEditDeleteMode }) => {
         <Marker
           key={data.id}
           position={[data.lat, data.lng]}
-          draggable={isEditDeleteMode} // Enable dragging in delete mode
+          draggable={isEditDeleteMode}
           eventHandlers={{
             dragend: (e) => {
               if (isEditDeleteMode) {
@@ -78,7 +70,6 @@ const MapClickHandler = ({ isEditMode, isEditDeleteMode }) => {
             },
             click: (e) => {
                 if (isEditDeleteMode && e.originalEvent.shiftKey) {
-                  // Shift + Click to delete the marker
                   deleteMarker(data.id);
                 }
             },

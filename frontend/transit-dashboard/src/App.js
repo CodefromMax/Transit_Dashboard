@@ -10,7 +10,8 @@ import ModeToggleControlGroup from './components/controls/control_group/mode_tog
 import MapClickHandler from './components/map/map_click_handler/MapClickHandler';
 import proj4 from 'proj4';
 import StopsLayer from './components/layers/StopsLayer';
-
+import CreateGTFSButton from './components/controls/button/create_gtfs_button/CreateGTFSButton';
+import ClearAllButton from './components/controls/button/clear_all_button/ClearAllButton';
 
 proj4.defs(
   'EPSG:3347',
@@ -33,6 +34,9 @@ const reprojectCoordinates = (coords) => {
 const App = () => {
   const center = [43.5883, -79.3323];
   const zoom = 10;
+
+  // This is the alignment data
+  const [clickData, setClickData] = useState([]);
 
   // Edit or Edit + Delete Mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -76,6 +80,16 @@ const App = () => {
 
   const toggleEditDeleteMode = () => {
     setIsEditDeleteMode(!isEditDeleteMode);
+  };
+
+  const clearAll = () => {
+    setClickData([]);
+  };
+
+  const createGTFS = () => {
+    if (clickData.length > 0) {
+      console.log('Create GTFS with Alignment:', clickData);
+    }
   };
 
   // Fetch Census data once
@@ -142,6 +156,16 @@ const App = () => {
             toggleEditDeleteMode={toggleEditDeleteMode}
           />
         }
+        ClearAllButton={
+          isEditDeleteMode && (
+            <ClearAllButton onClear={clearAll} isDisabled={clickData.length === 0} />
+          )
+        }
+        CreateGTFSButton={
+          !isEditMode && (
+            <CreateGTFSButton onCreate={createGTFS} isDisabled={clickData.length === 0} />
+          )
+        }
       />
       <MapContainer center={center} zoom={zoom} style={{ height: '100vh' }}>
         <TileLayer
@@ -152,7 +176,7 @@ const App = () => {
         {showCensusLayer && censusData && <CensusLayer data={censusData}/>}
         {showGTFSLayer && gtfsData && <GTFSLayer data={gtfsData} colorMap={shapeColorMap} />}
         {showStopsLayer && stopsData && <StopsLayer data={stopsData}/>}
-        <MapClickHandler isEditMode={isEditMode} isEditDeleteMode={isEditDeleteMode} />
+        <MapClickHandler isEditMode={isEditMode} isEditDeleteMode={isEditDeleteMode} clickData={clickData} setClickData={setClickData}></MapClickHandler>
       </MapContainer>
 
       {showCensusLayer && censusData && <CensusLegend />}
