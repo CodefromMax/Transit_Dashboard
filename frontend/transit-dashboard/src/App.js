@@ -55,7 +55,7 @@ const App = () => {
 
   const controls_layers = [
     {
-      label: 'Show Census Heatmap',
+      label: 'Show Census Overlay',
       isChecked: showCensusLayer,
       onToggle: () => setShowCensusLayer(!showCensusLayer),
     },
