@@ -1,4 +1,4 @@
-from_id,to_id,travel_time
+CTUID,to_id,travel_time
 5350001.00,7792696,78.0
 5350001.00,9638452,119.0
 5350001.00,54248,
