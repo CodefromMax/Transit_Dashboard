@@ -6,18 +6,18 @@ import pandas as pd
 import geopandas as gpd
 import re
 
-class Data(object):
-    def __init__(self, path, name, type):
+class DataMain(object):
+    def __init__(self, path, name = None, type = None):
         self.path = path
-        self.name = name
-        self.type = type
+        self.name = name # not used for now
+        self.type = type # not used for now, read data hardcoded
 
     def read_csv(self):
-        df = pd.read_csv(self.path, header=None)
+        df = pd.read_csv(self.path)
         return df
     
     def read_gdf(self):
-        gdf = gdp.read_file(self.path)
+        gdf = gpd.read_file(self.path)
         return gdf
     
     def save_geojson(self, gdf, output_path):
@@ -34,14 +34,17 @@ class Data(object):
     # aggregate the data (Key destination, Job Availability, Demographic, Calculated Travel Time)
     def aggregate_for_metric(self, key_dest, job, dem, trvl_time):
         # DO NOT CONCAT TRAVEL TIME FOR NOW
-        pass
+        combined_df = key_dest.merge(job, on='CTUID', how='inner')
+        combined_df = combined_df.merge(dem, on='CTUID', how='inner')
+
+        return combined_df
     
 
-class Boundaries(Data):
+class Boundaries(DataMain):
     def __init__(self, path, name, type):
         super().__init__(path, name, type)
         
-        self.gdf = self.read_gdf(path)
+        self.gdf = self.read_gdf()
         self.gdf_centroid = self.calculate_centroids()
         self.gdf['CTUID'] = self.gdf['CTUID'].astype(float)
         self.gdf_centroid['CTUID'] = self.gdf_centroid['CTUID'].astype(float)
@@ -60,27 +63,28 @@ class Boundaries(Data):
 
 
 
-class KeyDestination (Data):
+class KeyDestination (DataMain):
     def __init__(self, path, name, type):
         super().__init__(path, name, type)
-        self.key_dest_df = self.read_csv(path)
+        self.key_dest_df = self.read_csv()
         self.key_dest_df['CTUID'] = self.key_dest_df['CTUID'].astype(float)
 
 # ---------------- User editable ------------------ #
-class JobData (Data):
+class JobData (DataMain):
     def __init__(self, path, name, type):
         super().__init__(path, name, type)
-        self.job_df = self.read_csv(path)
+
+        self.job_df = self.read_csv()
         self.job_df['CTUID'] = self.job_df['CTUID'].astype(float)
 
 
 # FOR CHASS DATASET
-class CensusDemographic(Data):
+class CensusDemographic(DataMain):
     def __init__(self, path, name, column_path, type):
         super().__init__(path, name, type)
         self.column_path = column_path
 
-        self.census_df = self.read_csv(path)
+        self.census_df = self.read_csv()
         self.column_names = self.read_column()
         self.census_df.columns = self.column_names[1:]
         self.census_df = self.census_df.rename(columns={'GEO UID':'CTUID'})
