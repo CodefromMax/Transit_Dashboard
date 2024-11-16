@@ -33,6 +33,7 @@ class Data(object):
     # boundaries (shape file in json will be passed separately)
     # aggregate the data (Key destination, Job Availability, Demographic, Calculated Travel Time)
     def aggregate_for_metric(self, key_dest, job, dem, trvl_time):
+        # DO NOT CONCAT TRAVEL TIME FOR NOW
         pass
     
 
@@ -85,6 +86,7 @@ class CensusDemographic(Data):
         self.census_df = self.census_df.rename(columns={'GEO UID':'CTUID'})
         self.census_df = self.census_df.fillna(0)
         self.census_df['CTUID'] = self.census_df['CTUID'].astype(float)
+        self.census_df = self.census_df.drop(index=0)
 
     def read_column(self):
         with open(self.column_path, 'r') as f:
