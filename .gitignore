@@ -12,3 +12,11 @@ key_destination_data/
 results/
 prepare_data/
 
+# cache
+__pycache__/*
+*.pyc
+
+# data
+*.json
+*.geojson
+*.csv
