@@ -11,12 +11,12 @@ census_tract_data/
 key_destination_data/
 results/
 prepare_data/
-
+draft/
 # cache
 __pycache__/*
 *.pyc
 
 # data
-*.json
-*.geojson
-*.csv
+# *.json
+# *.geojson
+# *.csv
