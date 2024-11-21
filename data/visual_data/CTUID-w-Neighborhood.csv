@@ -1,0 +1,584 @@
+CTUID,AREA_NAME
+5350128.04,South Eglinton-Davisville
+5350363.06,Woburn North
+5350363.07,Woburn North
+5350378.23,Agincourt North
+5350378.24,Agincourt North
+5350010.01,West Queen West
+5350010.02,West Queen West
+5350001.00,South Riverdale
+5350002.00,St Lawrence-East Bayfront-The Islands
+5350003.00,South Parkdale
+5350004.00,South Parkdale
+5350005.00,South Parkdale
+5350006.00,South Parkdale
+5350009.00,West Queen West
+5350014.00,Yonge-Bay Corridor
+5350015.00,Downtown Yonge East
+5350016.00,Moss Park
+5350018.00,South Riverdale
+5350019.00,South Riverdale
+5350020.00,The Beaches
+5350021.00,The Beaches
+5350022.00,The Beaches
+5350023.00,The Beaches
+5350024.00,The Beaches
+5350025.00,Woodbine Corridor
+5350026.00,Greenwood-Coxwell
+5350027.00,South Riverdale
+5350029.00,South Riverdale
+5350030.00,Regent Park
+5350031.00,Regent Park
+5350032.00,Moss Park
+5350033.00,Moss Park
+5350035.00,Yonge-Bay Corridor
+5350036.00,Kensington-Chinatown
+5350037.00,Kensington-Chinatown
+5350038.00,Kensington-Chinatown
+5350039.00,Kensington-Chinatown
+5350040.00,Trinity-Bellwoods
+5350041.00,Trinity-Bellwoods
+5350042.00,Trinity-Bellwoods
+5350043.00,Trinity-Bellwoods
+5350045.00,Little Portugal
+5350046.00,Little Portugal
+5350048.00,Roncesvalles
+5350049.00,High Park-Swansea
+5350051.00,High Park-Swansea
+5350052.00,Roncesvalles
+5350053.00,Dufferin Grove
+5350054.00,Dufferin Grove
+5350055.00,Palmerston-Little Italy
+5350056.00,Palmerston-Little Italy
+5350057.00,Palmerston-Little Italy
+5350058.00,Palmerston-Little Italy
+5350059.00,University
+5350060.00,University
+5350061.00,University
+5350064.00,North St.James Town
+5350066.00,Cabbagetown-South St.James Town
+5350067.00,Cabbagetown-South St.James Town
+5350068.00,Cabbagetown-South St.James Town
+5350069.00,North Riverdale
+5350070.00,North Riverdale
+5350071.00,North Riverdale
+5350073.00,South Riverdale
+5350074.00,Greenwood-Coxwell
+5350075.00,Greenwood-Coxwell
+5350076.00,Woodbine Corridor
+5350077.00,Woodbine Corridor
+5350078.00,East End-Danforth
+5350079.00,East End-Danforth
+5350081.00,Danforth
+5350082.00,Danforth
+5350083.00,Danforth
+5350084.00,Playter Estates-Danforth
+5350085.00,Playter Estates-Danforth
+5350086.00,Rosedale-Moore Park
+5350087.00,Rosedale-Moore Park
+5350088.00,Rosedale-Moore Park
+5350089.00,Annex
+5350090.00,Annex
+5350092.00,Annex
+5350093.00,Annex
+5350094.00,Dovercourt Village
+5350095.00,Dovercourt Village
+5350098.00,Junction-Wallace Emerson
+5350099.00,High Park North
+5350100.00,Junction Area
+5350101.00,Junction Area
+5350103.00,High Park North
+5350104.00,Runnymede-Bloor West Village
+5350105.00,Junction Area
+5350106.00,Junction Area
+5350107.00,Weston-Pelham Park
+5350108.00,Weston-Pelham Park
+5350109.00,Junction-Wallace Emerson
+5350110.00,Corso Italia-Davenport
+5350111.00,Corso Italia-Davenport
+5350112.00,Corso Italia-Davenport
+5350113.00,Corso Italia-Davenport
+5350114.00,Wychwood
+5350115.00,Wychwood
+5350116.00,Wychwood
+5350117.00,Casa Loma
+5350118.00,Casa Loma
+5350119.00,Casa Loma
+5350120.00,Yonge-St.Clair
+5350121.00,Yonge-St.Clair
+5350122.00,Yonge-St.Clair
+5350123.00,Yonge-St.Clair
+5350124.00,Rosedale-Moore Park
+5350125.00,Rosedale-Moore Park
+5350126.00,Mount Pleasant East
+5350127.00,Mount Pleasant East
+5350129.00,Yonge-Eglinton
+5350130.00,Forest Hill South
+5350131.00,Forest Hill South
+5350132.00,Forest Hill North
+5350133.00,Forest Hill North
+5350134.00,Lawrence Park South
+5350135.00,Yonge-Eglinton
+5350137.00,Mount Pleasant East
+5350138.00,Lawrence Park South
+5350140.00,Lawrence Park South
+5350142.00,Lawrence Park North
+5350150.00,Lambton Baby Point
+5350151.00,Lambton Baby Point
+5350152.00,Runnymede-Bloor West Village
+5350153.00,Rockcliffe-Smythe
+5350154.00,Rockcliffe-Smythe
+5350155.00,Rockcliffe-Smythe
+5350157.00,Mount Dennis
+5350158.00,Keelesdale-Eglinton West
+5350160.00,Caledonia-Fairbank
+5350161.00,Caledonia-Fairbank
+5350162.00,Oakwood Village
+5350163.00,Oakwood Village
+5350164.00,Oakwood Village
+5350165.00,Humewood-Cedarvale
+5350166.00,Humewood-Cedarvale
+5350168.00,Oakwood Village
+5350170.00,Briar Hill-Belgravia
+5350171.00,Beechborough-Greenbrook
+5350172.00,Beechborough-Greenbrook
+5350173.00,Mount Dennis
+5350174.00,Mount Dennis
+5350176.00,Weston
+5350180.00,Taylor-Massey
+5350182.00,Danforth East York
+5350186.00,Leaside-Bennington
+5350187.00,Old East York
+5350188.00,Old East York
+5350189.00,O'Connor-Parkview
+5350191.00,O'Connor-Parkview
+5350192.00,O'Connor-Parkview
+5350193.00,O'Connor-Parkview
+5350201.00,Mimico-Queensway
+5350202.00,Mimico-Queensway
+5350203.00,Mimico-Queensway
+5350204.00,New Toronto
+5350205.00,New Toronto
+5350207.00,New Toronto
+5350208.00,New Toronto
+5350209.00,Mimico-Queensway
+5350211.00,Alderwood
+5350212.00,Alderwood
+5350214.00,Etobicoke City Centre
+5350215.00,Stonegate-Queensway
+5350216.00,Stonegate-Queensway
+5350217.00,Stonegate-Queensway
+5350218.00,Stonegate-Queensway
+5350219.00,Stonegate-Queensway
+5350220.00,Markland Wood
+5350224.00,Princess-Rosethorn
+5350226.00,Kingsway South
+5350227.00,Kingsway South
+5350228.00,Kingsway South
+5350229.00,Kingsway South
+5350231.00,Edenbridge-Humber Valley
+5350232.00,Princess-Rosethorn
+5350233.00,Princess-Rosethorn
+5350234.00,Eringate-Centennial-West Deane
+5350239.00,Kingsview Village-The Westway
+5350241.00,Humber Heights-Westmount
+5350242.00,Humber Heights-Westmount
+5350245.00,Rexdale-Kipling
+5350246.00,Rexdale-Kipling
+5350261.00,Victoria Village
+5350264.00,Bridle Path-Sunnybrook-York Mills
+5350265.00,Bridle Path-Sunnybrook-York Mills
+5350266.00,Bridle Path-Sunnybrook-York Mills
+5350267.00,Banbury-Don Mills
+5350268.00,Banbury-Don Mills
+5350275.00,Bedford Park-Nortown
+5350277.00,Bedford Park-Nortown
+5350278.00,Englemount-Lawrence
+5350280.00,Brookhaven-Amesbury
+5350282.00,Pelmo Park-Humberlea
+5350284.00,Maple Leaf
+5350285.00,Maple Leaf
+5350286.00,Yorkdale-Glen Park
+5350288.00,Clanton Park
+5350289.00,Downsview
+5350292.00,Oakdale-Beverley Heights
+5350293.00,Pelmo Park-Humberlea
+5350295.00,Downsview
+5350296.00,Downsview
+5350298.00,Lansing-Westgate
+5350303.00,Don Valley Village
+5350309.00,Westminster-Branson
+5350313.00,Humbermede
+5350319.00,Newtonbrook West
+5350330.00,Guildwood
+5350332.00,Scarborough Village
+5350333.00,Cliffcrest
+5350334.00,Cliffcrest
+5350335.00,Cliffcrest
+5350336.00,Birchcliffe-Cliffside
+5350338.00,Birchcliffe-Cliffside
+5350339.00,Birchcliffe-Cliffside
+5350340.00,Clairlea-Birchmount
+5350342.00,Clairlea-Birchmount
+5350343.00,Clairlea-Birchmount
+5350345.00,Kennedy Park
+5350347.00,Clairlea-Birchmount
+5350348.00,Clairlea-Birchmount
+5350349.00,Wexford/Maryvale
+5350350.00,Wexford/Maryvale
+5350352.00,Dorset Park
+5350354.00,Bendale South
+5350356.00,Golfdale-Cedarbrae-Woburn
+5350359.00,West Hill
+5350360.00,West Hill
+5350365.00,Golfdale-Cedarbrae-Woburn
+5350366.00,Woburn North
+5350369.00,Bendale-Glen Andrew
+5350371.00,Wexford/Maryvale
+5350372.00,Wexford/Maryvale
+5350373.00,Wexford/Maryvale
+5350012.01,Harbourfront-CityPlace
+5350034.01,Downtown Yonge East
+5350034.02,Downtown Yonge East
+5350299.01,Lansing-Westgate
+5350299.02,Lansing-Westgate
+5350305.03,Bayview Village
+5350307.03,Yonge-Doris
+5350307.04,Yonge-Doris
+5350307.05,Yonge-Doris
+5350307.06,Yonge-Doris
+5350307.07,East Willowdale
+5350368.01,Bendale-Glen Andrew
+5350368.02,Bendale-Glen Andrew
+5350013.01,St Lawrence-East Bayfront-The Islands
+5350013.02,St Lawrence-East Bayfront-The Islands
+5350012.03,Harbourfront-CityPlace
+5350012.04,Harbourfront-CityPlace
+5350376.15,Tam O'Shanter-Sullivan
+5350376.16,Tam O'Shanter-Sullivan
+5350237.01,Willowridge-Martingrove-Richview
+5350237.02,Willowridge-Martingrove-Richview
+5350237.03,Willowridge-Martingrove-Richview
+5350249.01,Mount Olive-Silverstone-Jamestown
+5350260.01,Flemingdon Park
+5350301.01,Henry Farm
+5350304.01,Don Valley Village
+5350304.02,Don Valley Village
+5350304.03,Bayview Village
+5350304.04,Don Valley Village
+5350311.02,York University Heights
+5350311.03,York University Heights
+5350311.04,York University Heights
+5350312.02,Glenfield-Jane Heights
+5350312.03,Glenfield-Jane Heights
+5350315.01,Humber Summit
+5350315.02,Humber Summit
+5350316.01,Black Creek
+5350324.01,Bayview Woods-Steeles
+5350324.02,Hillcrest Village
+5350324.03,Hillcrest Village
+5350375.01,L'Amoreaux West
+5350375.02,Tam O'Shanter-Sullivan
+5350375.03,Tam O'Shanter-Sullivan
+5350376.01,East L'Amoreaux
+5350376.02,East L'Amoreaux
+5350322.01,Newtonbrook East
+5350322.02,Newtonbrook East
+5350378.25,Morningside Heights
+5350378.26,Morningside Heights
+5350378.27,Morningside Heights
+5350378.28,Morningside Heights
+5350355.05,Eglinton East
+5350355.06,Eglinton East
+5350337.01,Birchcliffe-Cliffside
+5350337.02,Birchcliffe-Cliffside
+5350260.06,Flemingdon Park
+5350260.07,Victoria Village
+5350183.01,Danforth East York
+5350183.02,Danforth East York
+5350028.01,South Riverdale
+5350028.02,South Riverdale
+5350063.03,Church-Wellesley
+5350063.04,Church-Wellesley
+5350065.01,North St.James Town
+5350050.01,High Park-Swansea
+5350097.01,Junction-Wallace Emerson
+5350065.02,North St.James Town
+5350128.02,South Eglinton-Davisville
+5350156.01,Rockcliffe-Smythe
+5350156.02,Rockcliffe-Smythe
+5350169.01,Briar Hill-Belgravia
+5350169.02,Briar Hill-Belgravia
+5350175.01,Weston
+5350175.02,Weston
+5350184.01,Danforth East York
+5350184.02,Old East York
+5350185.01,Broadview North
+5350185.02,Broadview North
+5350190.01,Taylor-Massey
+5350190.02,O'Connor-Parkview
+5350221.01,Markland Wood
+5350221.02,Etobicoke West Mall
+5350222.01,Islington
+5350222.02,Islington
+5350230.01,Edenbridge-Humber Valley
+5350230.02,Edenbridge-Humber Valley
+5350235.01,Eringate-Centennial-West Deane
+5350235.02,Eringate-Centennial-West Deane
+5350236.01,Etobicoke West Mall
+5350236.02,Eringate-Centennial-West Deane
+5350238.01,Willowridge-Martingrove-Richview
+5350238.02,Kingsview Village-The Westway
+5350240.01,Willowridge-Martingrove-Richview
+5350240.02,Humber Heights-Westmount
+5350243.01,Kingsview Village-The Westway
+5350243.02,Kingsview Village-The Westway
+5350063.05,Church-Wellesley
+5350248.02,Mount Olive-Silverstone-Jamestown
+5350250.01,Thistletown-Beaumond Heights
+5350250.02,Thistletown-Beaumond Heights
+5350262.01,Victoria Village
+5350262.02,Victoria Village
+5350270.01,Fenside-Parkwoods
+5350270.02,Parkwoods-O'Connor Hills
+5350273.01,St.Andrew-Windfields
+5350273.02,St.Andrew-Windfields
+5350276.01,Bedford Park-Nortown
+5350276.02,Bedford Park-Nortown
+5350279.01,Yorkdale-Glen Park
+5350279.02,Yorkdale-Glen Park
+5350283.01,Rustic
+5350283.02,Rustic
+5350287.02,Englemount-Lawrence
+5350294.01,Oakdale-Beverley Heights
+5350294.02,Glenfield-Jane Heights
+5350297.01,Bathurst Manor
+5350297.02,Clanton Park
+5350302.01,Pleasant View
+5350302.02,Pleasant View
+5350304.05,Don Valley Village
+5350304.06,Don Valley Village
+5350308.02,Willowdale West
+5350312.04,Glenfield-Jane Heights
+5350063.06,Church-Wellesley
+5350317.02,Westminster-Branson
+5350320.01,Newtonbrook West
+5350320.02,Newtonbrook West
+5350323.01,Bayview Woods-Steeles
+5350323.02,Bayview Woods-Steeles
+5350128.05,South Eglinton-Davisville
+5350331.01,Guildwood
+5350128.06,South Eglinton-Davisville
+5350196.01,Leaside-Bennington
+5350341.02,Oakridge
+5350346.01,Kennedy Park
+5350346.02,Ionview
+5350196.02,Leaside-Bennington
+5350353.02,Bendale South
+5350195.01,Leaside-Bennington
+5350355.02,Eglinton East
+5350357.01,Golfdale-Cedarbrae-Woburn
+5350357.02,Golfdale-Cedarbrae-Woburn
+5350358.01,West Hill
+5350358.02,West Hill
+5350358.03,West Hill
+5350195.02,Leaside-Bennington
+5350363.02,Morningside
+5350139.01,Lawrence Park South
+5350364.01,Morningside
+5350364.02,Golfdale-Cedarbrae-Woburn
+5350367.01,Woburn North
+5350367.02,Woburn North
+5350370.01,Dorset Park
+5350370.02,Dorset Park
+5350370.03,Dorset Park
+5350374.01,Tam O'Shanter-Sullivan
+5350374.02,Tam O'Shanter-Sullivan
+5350374.03,Tam O'Shanter-Sullivan
+5350375.04,East L'Amoreaux
+5350375.05,L'Amoreaux West
+5350139.02,Lawrence Park South
+5350377.02,Agincourt South-Malvern West
+5350377.03,Agincourt North
+5350287.03,Englemount-Lawrence
+5350378.02,Agincourt South-Malvern West
+5350378.03,Malvern East
+5350287.04,Englemount-Lawrence
+5350308.03,Willowdale West
+5350291.03,Downsview
+5350291.04,Downsview
+5350290.01,Oakdale-Beverley Heights
+5350290.02,Downsview
+5350096.01,Dovercourt Village
+5350096.02,Dovercourt Village
+5350097.03,Junction-Wallace Emerson
+5350097.04,Junction-Wallace Emerson
+5350008.01,Fort York-Liberty Village
+5350008.02,Fort York-Liberty Village
+5350047.03,Roncesvalles
+5350047.04,Roncesvalles
+5350102.04,High Park North
+5350102.05,High Park North
+5350050.03,High Park-Swansea
+5350050.04,High Park-Swansea
+5350210.01,Mimico-Queensway
+5350200.01,Humber Bay Shores
+5350200.02,Mimico-Queensway
+5350213.01,Islington
+5350213.02,Etobicoke City Centre
+5350223.01,Islington
+5350223.02,Islington
+5350007.01,South Parkdale
+5350007.02,South Parkdale
+5350091.01,Annex
+5350091.02,Annex
+5350141.01,Lawrence Park North
+5350141.02,Lawrence Park North
+5350181.01,Woodbine-Lumsden
+5350181.02,Woodbine-Lumsden
+5350206.01,Long Branch
+5350206.02,Long Branch
+5350244.01,Elms-Old Rexdale
+5350244.02,Elms-Old Rexdale
+5350263.02,Banbury-Don Mills
+5350271.01,Parkwoods-O'Connor Hills
+5350271.02,Parkwoods-O'Connor Hills
+5350272.01,Fenside-Parkwoods
+5350272.02,Fenside-Parkwoods
+5350274.01,St.Andrew-Windfields
+5350274.02,St.Andrew-Windfields
+5350291.02,Oakdale-Beverley Heights
+5350302.03,Pleasant View
+5350310.01,Bathurst Manor
+5350310.02,Bathurst Manor
+5350312.05,Glenfield-Jane Heights
+5350314.01,Humbermede
+5350314.02,Humbermede
+5350315.03,Humber Summit
+5350316.03,Black Creek
+5350316.04,Black Creek
+5350317.03,Westminster-Branson
+5350361.01,Centennial Scarborough
+5350361.02,Centennial Scarborough
+5350362.01,West Rouge
+5350362.02,Highland Creek
+5350362.03,Highland Creek
+5350376.05,Steeles
+5350376.06,Milliken
+5350376.04,Steeles
+5350377.04,Agincourt North
+5350378.06,Malvern West
+5350378.08,Agincourt North
+5350378.07,Agincourt South-Malvern West
+5350378.04,Malvern West
+5350378.05,Malvern East
+5350362.04,West Rouge
+5350376.08,East L'Amoreaux
+5350376.09,Steeles
+5350249.03,West Humber-Clairville
+5350248.03,West Humber-Clairville
+5350167.01,Forest Hill South
+5350167.02,Humewood-Cedarvale
+5350378.11,Malvern West
+5350378.12,Malvern East
+5350378.14,Agincourt North
+5350062.01,Bay-Cloverhill
+5350377.06,Milliken
+5350377.07,Milliken
+5350047.02,Roncesvalles
+5350102.02,High Park North
+5350102.03,High Park North
+5350136.01,North Toronto
+5350136.02,North Toronto
+5350249.04,Mount Olive-Silverstone-Jamestown
+5350249.05,Mount Olive-Silverstone-Jamestown
+5350080.01,East End-Danforth
+5350080.02,East End-Danforth
+5350072.01,Blake-Jones
+5350072.02,Blake-Jones
+5350159.01,Keelesdale-Eglinton West
+5350159.02,Keelesdale-Eglinton West
+5350225.01,Islington
+5350225.02,Etobicoke City Centre
+5350260.04,Flemingdon Park
+5350260.05,Flemingdon Park
+5350247.01,West Humber-Clairville
+5350247.02,West Humber-Clairville
+5350248.04,West Humber-Clairville
+5350248.05,West Humber-Clairville
+5350281.01,Brookhaven-Amesbury
+5350281.02,Brookhaven-Amesbury
+5350301.03,Henry Farm
+5350301.04,Henry Farm
+5350263.03,Banbury-Don Mills
+5350263.04,Banbury-Don Mills
+5350305.01,Bayview Village
+5350306.01,East Willowdale
+5350306.02,East Willowdale
+5350312.06,Glenfield-Jane Heights
+5350312.07,Glenfield-Jane Heights
+5350316.05,Black Creek
+5350316.06,Black Creek
+5350321.01,Newtonbrook East
+5350321.02,Newtonbrook East
+5350324.05,Hillcrest Village
+5350324.06,Hillcrest Village
+5350331.03,Scarborough Village
+5350331.04,Scarborough Village
+5350351.01,Ionview
+5350351.02,Ionview
+5350353.03,Eglinton East
+5350353.04,Eglinton East
+5350355.04,Eglinton East
+5350363.04,Morningside
+5350363.05,Morningside
+5350376.11,L'Amoreaux West
+5350376.12,L'Amoreaux West
+5350376.13,Steeles
+5350376.14,Steeles
+5350378.16,Malvern East
+5350378.17,Malvern East
+5350311.05,York University Heights
+5350311.06,York University Heights
+5350378.18,Milliken
+5350378.19,Milliken
+5350378.20,Milliken
+5350378.21,Milliken
+5350378.22,Milliken
+5350194.01,Thorncliffe Park
+5350194.02,Thorncliffe Park
+5350194.03,Thorncliffe Park
+5350194.04,Thorncliffe Park
+5350317.04,Westminster-Branson
+5350317.05,Westminster-Branson
+5350341.03,Clairlea-Birchmount
+5350341.04,Oakridge
+5350250.04,Mount Olive-Silverstone-Jamestown
+5350250.05,Mount Olive-Silverstone-Jamestown
+5350269.01,Fenside-Parkwoods
+5350269.02,Parkwoods-O'Connor Hills
+5350344.01,Kennedy Park
+5350344.02,Kennedy Park
+5350011.01,Wellington Place
+5350011.02,Wellington Place
+5350011.03,Wellington Place
+5350044.01,Little Portugal
+5350044.02,Little Portugal
+5350300.01,Avondale
+5350300.02,Avondale
+5350300.03,Avondale
+5350318.01,Newtonbrook West
+5350318.02,Newtonbrook West
+5350305.05,Bayview Village
+5350305.06,Bayview Village
+5350377.08,Agincourt South-Malvern West
+5350377.09,Agincourt South-Malvern West
+5350308.05,Willowdale West
+5350308.06,Willowdale West
+5350308.07,Willowdale West
+5350210.03,Humber Bay Shores
+5350210.04,Humber Bay Shores
+5350062.03,Bay-Cloverhill
+5350062.04,Bay-Cloverhill
+5350017.01,St Lawrence-East Bayfront-The Islands
+5350017.02,St Lawrence-East Bayfront-The Islands
