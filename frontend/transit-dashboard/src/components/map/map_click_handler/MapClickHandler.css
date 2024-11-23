@@ -1,0 +1,24 @@
+.marker-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+.marker-icon.waypoint {
+  background-color: rgb(13, 74, 230);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.marker-icon.station {
+  background-color: red;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.leaflet-interactive {
+  stroke-dasharray: 5, 5; /* Dashed line */
+  stroke-width: 5px; /* Line thickness */
+}

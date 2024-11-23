@@ -1,0 +1,7 @@
+[
+    { "id": 1, "type": "waypoint", "lat": 43.6529, "lng": -79.3849 },
+    { "id": 2, "type": "station", "lat": 43.6532, "lng": -79.3832 },
+    { "id": 3, "type": "waypoint", "lat": 43.6545, "lng": -79.3815 },
+    { "id": 4, "type": "station", "lat": 43.6550, "lng": -79.3800 }
+  ]
+  

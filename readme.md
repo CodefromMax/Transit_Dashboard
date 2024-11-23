@@ -33,11 +33,14 @@ export PYTHONPATH="${PYTHONPATH}:/Users/user/Documents/Capstone/Transit_Dashboar
 5. Run 'source ~/.zshrc'
 6. Run 'echo $PYTHONPATH' to check if python path set correctly
 
-## TO RUN THE TEST FRONTEND
+FRONTEND SETUP
 
-1. Run 'python -m http.server 8000 in the Transit_Dashboard directory
-2. http://localhost:8000/visualization/public/index.html
+1. In a new terminal, 'cd frontend/transit-dashboard/'
+2. Run 'bash setup.sh', and follow instructions (download nvm if neccessary)
+3. Run 'npm install' 
 
-## Frontend CSS not Updating
+FRONTEND RUN
 
--> force refresh with Ctrl+F5 (Windows/Linux) or CMD+Shift+R (Mac)
+1. Run 'python -m http.server 8080' in the Transit_Dashboard directory
+2. In a new terminal, 'cd frontend/transit-dashboard/'
+3. Run 'npm start'

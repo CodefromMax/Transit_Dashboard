@@ -1,0 +1,19 @@
+.control-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .control-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .control-button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
