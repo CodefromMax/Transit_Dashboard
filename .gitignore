@@ -11,7 +11,7 @@ census_tract_data/
 key_destination_data/
 results/
 prepare_data/
-gtfs_output/
+backend/src/gtfs_output/
 
 # dependencies
 frontend/transit-dashboard/node_modules
