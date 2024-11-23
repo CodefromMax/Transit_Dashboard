@@ -12,6 +12,7 @@ import proj4 from 'proj4';
 import StopsLayer from './components/layers/StopsLayer';
 import CreateGTFSButton from './components/controls/button/create_gtfs_button/CreateGTFSButton';
 import ClearAllButton from './components/controls/button/clear_all_button/ClearAllButton';
+import SearchBar from './components/search-bar/SearchBar';
 
 proj4.defs(
   'EPSG:3347',
@@ -54,11 +55,11 @@ const App = () => {
   const [shapeColorMap, setShapeColorMap] = useState({});
 
   const controls_layers = [
-    {
-      label: 'Show Census Overlay',
-      isChecked: showCensusLayer,
-      onToggle: () => setShowCensusLayer(!showCensusLayer),
-    },
+    // {
+    //   label: 'Show Census Overlay',
+    //   isChecked: showCensusLayer,
+    //   onToggle: () => setShowCensusLayer(!showCensusLayer),
+    // },
     {
       label: 'Show GTFS Lines',
       isChecked: showGTFSLayer,
@@ -120,11 +121,12 @@ const App = () => {
       .then(response => response.json())
       .then(data => {
         setGtfsData(data); // Set fetched data
+        console.log(data)
         console.log('Fetched GTFS')
         // Set a sample color map for GTFSLayer (can adjust logic as needed)
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6'];
+        const colors = ['#FFFF00', '#33FF57', '#9D00FF', '#FF33A6'];
         const map = data.features.reduce((acc, feature, index) => {
-          acc[feature.properties.shape_id] = colors[index % colors.length];
+          acc[feature.properties.name] = colors[index % colors.length];
           return acc;
         }, {});
         setShapeColorMap(map);
@@ -157,7 +159,7 @@ const App = () => {
           />
         }
         ClearAllButton={
-          isEditDeleteMode && (
+          isEditDeleteMode && isEditMode && (
             <ClearAllButton onClear={clearAll} isDisabled={clickData.length === 0} />
           )
         }
@@ -167,7 +169,9 @@ const App = () => {
           )
         }
       />
-      <MapContainer center={center} zoom={zoom} style={{ height: '100vh' }}>
+      
+      <MapContainer center={center} zoom={zoom} style={{ height: '100vh' }} doubleClickZoom={false}>
+        <SearchBar />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

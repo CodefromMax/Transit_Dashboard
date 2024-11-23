@@ -8,7 +8,7 @@ const CreateGTFSButton = ({ onCreate, isDisabled }) => {
       disabled={isDisabled}
       className={`control-button ${isDisabled ? 'disabled' : ''}`}
     >
-      Create GTFS
+      Calculate Metrics
     </button>
   );
 };

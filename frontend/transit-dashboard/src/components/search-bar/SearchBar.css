@@ -1,0 +1,46 @@
+.search-bar {
+    position: absolute;
+    top: 10px; /* Adjust vertical positioning as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Ensure the search bar is above the map */
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .search-bar form {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar input {
+    width: 200px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .search-bar button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+  
+  .search-bar button:hover {
+    background-color: #0056b3;
+  }
+  
+  .search-bar form button {
+    pointer-events: auto; /* Ensure the button has high interaction priority */
+  }

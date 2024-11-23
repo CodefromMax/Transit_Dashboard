@@ -5,7 +5,7 @@
   }
 
 .marker-icon.waypoint {
-  background-color: black;
+  background-color: rgb(13, 74, 230);
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -20,5 +20,5 @@
 
 .leaflet-interactive {
   stroke-dasharray: 5, 5; /* Dashed line */
-  stroke-width: 3px; /* Line thickness */
+  stroke-width: 5px; /* Line thickness */
 }

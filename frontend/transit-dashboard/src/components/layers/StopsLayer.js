@@ -10,7 +10,7 @@ const StopsLayer = ({ data }) => {
     opacity: 0.5,
     fillColor: '#000000',
     fillOpacity: 0.8,
-    radius: 3, // Size of the circle markers
+    radius: 2, // Size of the circle markers
   };
 
   // Function to convert points to circle markers and bind popups
