@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import shutil
+from pathlib import Path
 from helper.find_project_root import find_project_root
 
 
@@ -82,6 +83,22 @@ def remove_line(gtfs_folder: str, output_folder: str, route_short_name: str):
     print(
         f"Successfully removed route '{route_short_name}' - '{route_long_name}' from GTFS data."
     )
+
+def zip_output_folder(output_folder: str, zip_name: str):
+    """
+    Compress the output folder into a ZIP file.
+    """
+    output_folder = Path(output_folder)
+    zip_name = Path(zip_name)
+
+    if not output_folder.is_dir():
+        raise ValueError(f"The specified folder path does not exist or is not a directory: {output_folder}")
+
+    # Create the ZIP archive
+    shutil.make_archive(zip_name, 'zip', output_folder)
+    print(f"Folder '{output_folder}' has been zipped to '{zip_name}.zip'")
+
+
 
 
 if __name__ == "__main__":
