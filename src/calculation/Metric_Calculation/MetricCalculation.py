@@ -148,6 +148,7 @@ class MetricCalculation:
         # Add the new column
         base_df[new_column_name] = merged_df[join_column_name]
         return base_df
+    
     @staticmethod
     def calculate_total_destinations(input_csv_path, ctuid_csv_path, column_names=None, output_csv_path=None):
         """
@@ -199,6 +200,7 @@ class MetricCalculation:
             print(f"Output saved to {output_csv_path}")
 
         return result
+    
     @staticmethod
     def pivot_totals_to_rows(input_data, output_path=None):
         """
@@ -242,6 +244,7 @@ class MetricCalculation:
             print(f"Transformed data saved to {output_path}")
 
         return pivoted_df
+    
     @staticmethod
     def group_to_ids_by_ctuid(input_data, output_path=None, from_id_col='from_id', to_id_col='to_id'):
         """
@@ -270,7 +273,7 @@ class MetricCalculation:
 
         # Group by `from_id` and aggregate `to_id` into lists
         grouped_df = df.groupby(from_id_col)[to_id_col].apply(list).reset_index()
-
+        # .apply(lambda x: [f"{float(item):.2f}" for item in x])
         # Rename the aggregated column for clarity
         grouped_df = grouped_df.rename(columns={to_id_col: f'{to_id_col}_list'})
 
@@ -280,6 +283,80 @@ class MetricCalculation:
             print(f"Grouped data saved to {output_path}")
 
         return grouped_df
+
+
+    def sum_jobs_by_from_id_and_fill_missing(
+        grouped_to_ids_df, job_data_df, ctuid_reference_path, output_path=None
+    ):
+        """
+        Sums the jobs for each type across all `census_id` values associated with each `from_id`,
+        and ensures all `CTUIDs` from the reference list are present in the output.
+
+        Args:
+            grouped_to_ids_df (pd.DataFrame): DataFrame containing `from_id` and lists of `to_id` values.
+            job_data_df (pd.DataFrame): DataFrame containing `census_id` and job types.
+            ctuid_reference_path (str): Path to the reference CSV containing all required `CTUIDs`.
+            output_path (str, optional): Path to save the result as a CSV. If None, does not save.
+
+        Returns:
+            pd.DataFrame: A DataFrame with `from_id` (as `CTUID`) and columns for each job type.
+        """
+        # Dynamically identify the ID column and job columns
+        id_column = [col for col in job_data_df.columns if 'ID' in col.upper()]
+        if len(id_column) != 1:
+            raise ValueError("The job data must have exactly one column with 'ID' in its name.")
+        id_column = id_column[0]
+
+        job_columns = [col for col in job_data_df.columns if col not in [id_column]]
+
+        # Ensure the grouped DataFrame has the required columns
+        if 'from_id' not in grouped_to_ids_df.columns or 'to_id_list' not in grouped_to_ids_df.columns:
+            raise ValueError("Grouped data must contain 'from_id' and 'to_id_list' columns.")
+
+        # Initialize a list to store results
+        results = []
+        grouped_to_ids_df["from_id"] = grouped_to_ids_df["from_id"].apply(lambda x: f"{float(x):.2f}")
+
+        # Iterate over each row in the grouped DataFrame
+        for _, row in grouped_to_ids_df.iterrows():
+            from_id = row['from_id']
+            to_id_list = row['to_id_list']
+
+            # Filter the job data for the relevant `census_id` values
+            relevant_jobs = job_data_df[job_data_df[id_column].isin(to_id_list)]
+
+            # Sum jobs across all types
+            total_jobs = {col: relevant_jobs[col].sum() for col in job_columns}
+
+            # Append the result
+            total_jobs = {"CTUID": from_id, **total_jobs}
+            results.append(total_jobs)
+
+        # Convert results to a DataFrame
+        result_df = pd.DataFrame(results)
+
+        # Load the reference CTUIDs
+        ctuid_reference_df = pd.read_csv(ctuid_reference_path)
+        ctuid_reference_df['CTUID'] = ctuid_reference_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+        all_ctuids = ctuid_reference_df['CTUID']
+
+        # Ensure all CTUIDs are included in the result, filling missing ones with zeros
+        result_df['CTUID'] = result_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+        result_df = result_df.set_index('CTUID')
+
+        missing_ctuids = set(all_ctuids) - set(result_df.index)
+        for ctuid in missing_ctuids:
+            result_df.loc[ctuid] = {col: 0 for col in job_columns}
+
+        result_df = result_df.reset_index()
+
+        # Save the result to a CSV if output_path is provided
+        if output_path:
+            result_df.to_csv(output_path, index=False)
+            print(f"Summed job data saved to {output_path}")
+
+        return result_df
+
 
 
 if __name__ == "__main__":
