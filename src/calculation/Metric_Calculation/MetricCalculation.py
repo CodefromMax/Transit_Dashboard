@@ -11,7 +11,7 @@ class MetricCalculation:
         self.travel_time_matrix_path = travel_time_matrix_path
         self.travel_time_matrix = pd.read_csv(travel_time_matrix_path)
 
-    def filter_destinations(self, output_path, top_n=None, threshold=None):
+    def filter_destinations(self, output_path=None, top_n=None, threshold=None):
         """
         Filters the travel time matrix to find destinations based on top N or threshold.
 
@@ -33,10 +33,11 @@ class MetricCalculation:
                 # Sort the result by 'from_id' and 'travel_time' for clarity
                 filtered_destinations = filtered_destinations[['from_id', 'to_id', 'travel_time']].sort_values(['from_id', 'travel_time'])
                 # Generate a specific output path for each threshold
-                specific_output_path = output_path.replace('.csv', f'_threshold_{t}.csv')
-                # Save the result to a CSV file without including the index
-                filtered_destinations.to_csv(specific_output_path, index=False)
-                print(f"Generated {specific_output_path}")
+                if output_path:
+                    specific_output_path = output_path.replace('.csv', f'_threshold_{t}.csv')
+                    # Save the result to a CSV file without including the index
+                    filtered_destinations.to_csv(specific_output_path, index=False)
+                    print(f"Filtered Destinations generated {specific_output_path}")
                 
         elif threshold is not None:
             # Filter destinations within the specified travel time threshold
@@ -44,8 +45,9 @@ class MetricCalculation:
             # Sort the result by 'from_id' and 'travel_time' for clarity
             filtered_destinations = filtered_destinations[['from_id', 'to_id', 'travel_time']].sort_values(['from_id', 'travel_time'])
             # Save the result to a CSV file without including the index
-            filtered_destinations.to_csv(output_path, index=False)
-            print(f"Generated {output_path}")
+            if output_path:
+                filtered_destinations.to_csv(output_path, index=False)
+                print(f"Generated {output_path}")
             
         elif top_n is not None:
             # Sort by travel time, group by 'from_id', and take the top N by travel time
@@ -54,13 +56,15 @@ class MetricCalculation:
                 .groupby('from_id')
                 .head(top_n)
             )
+
             # Sort the result by 'from_id' and 'travel_time' for clarity
             filtered_destinations = filtered_destinations[['from_id', 'to_id', 'travel_time']].sort_values(['from_id', 'travel_time'])
             # Save the result to a CSV file without including the index
             # Generate a specific output path for each threshold
-            specific_output_path = output_path.replace('.csv', f'_Top_{top_n}.csv')
-            filtered_destinations.to_csv(specific_output_path, index=False)
-            print(f"Generated {specific_output_path}")
+            if output_path:
+                specific_output_path = output_path.replace('.csv', f'_Top_{top_n}.csv')
+                filtered_destinations.to_csv(specific_output_path, index=False)
+                print(f"Generated {specific_output_path}")
     
         else:
             raise ValueError("Either top_n or threshold must be specified.")
@@ -195,8 +199,89 @@ class MetricCalculation:
             print(f"Output saved to {output_csv_path}")
 
         return result
+    @staticmethod
+    def pivot_totals_to_rows(input_data, output_path=None):
+        """
+        Pivots all columns except 'CTUID' and 'Neighbourhood' to rows and optionally saves the result to a CSV.
 
-# Example usage
+        Args:
+            input_data (str or pd.DataFrame): Path to the input CSV file or a pandas DataFrame containing the data.
+            output_path (str, optional): Path to save the transformed DataFrame. If None, does not save.
+
+        Returns:
+            pd.DataFrame: A transformed DataFrame with all totals pivoted to rows.
+        """
+        
+        # Read the input data if it is a string (file path)
+        if isinstance(input_data, str):
+            df = pd.read_csv(input_data)
+        elif isinstance(input_data, pd.DataFrame):
+            df = input_data
+        else:
+            raise ValueError("input_data must be a file path (str) or a pandas DataFrame.")
+
+        # Identify all columns except 'CTUID' and 'Neighbourhood'
+        columns_to_pivot = [col for col in df.columns if col not in ['CTUID', 'Neighbourhood']]
+
+        # Ensure the required columns are present in the DataFrame
+        if not columns_to_pivot:
+            raise ValueError("No columns available to pivot after 'CTUID' and 'Neighbourhood'.")
+
+        # Pivot the columns to rows
+        pivoted_df = pd.melt(
+            df, 
+            id_vars=['CTUID', 'Neighbourhood'],  # Keep these columns intact
+            value_vars=columns_to_pivot,        # Columns to pivot
+            var_name='Before_After_Difference',  # Name for the new column indicating the original column names
+            value_name='Value'                  # Name for the new column containing the values
+        ).sort_values(by=['CTUID', 'Neighbourhood'])
+
+        # Save the result to CSV if output_path is provided
+        if output_path:
+            pivoted_df.to_csv(output_path, index=False)
+            print(f"Transformed data saved to {output_path}")
+
+        return pivoted_df
+    @staticmethod
+    def group_to_ids_by_ctuid(input_data, output_path=None, from_id_col='from_id', to_id_col='to_id'):
+        """
+        Groups all `to_id` values for each Census Tract (`from_id` or `CTUID`) into a list.
+
+        Args:
+            input_data (str or pd.DataFrame): Path to the input CSV file or a pandas DataFrame containing the data.
+            output_path (str, optional): Path to save the grouped result as a CSV. If None, does not save.
+            from_id_col (str): Column name representing the Census Tract ID (default is 'from_id').
+            to_id_col (str): Column name representing the destination IDs (default is 'to_id').
+
+        Returns:
+            pd.DataFrame: A DataFrame with `from_id` and the grouped `to_id` list.
+        """
+        # Read the input data if it is a string (file path)
+        if isinstance(input_data, str):
+            df = pd.read_csv(input_data)
+        elif isinstance(input_data, pd.DataFrame):
+            df = input_data
+        else:
+            raise ValueError("input_data must be a file path (str) or a pandas DataFrame.")
+
+        # Ensure the required columns are present
+        if from_id_col not in df.columns or to_id_col not in df.columns:
+            raise ValueError(f"Columns '{from_id_col}' and '{to_id_col}' must exist in the input data.")
+
+        # Group by `from_id` and aggregate `to_id` into lists
+        grouped_df = df.groupby(from_id_col)[to_id_col].apply(list).reset_index()
+
+        # Rename the aggregated column for clarity
+        grouped_df = grouped_df.rename(columns={to_id_col: f'{to_id_col}_list'})
+
+        # Save the result to a CSV if output_path is provided
+        if output_path:
+            grouped_df.to_csv(output_path, index=False)
+            print(f"Grouped data saved to {output_path}")
+
+        return grouped_df
+
+
 if __name__ == "__main__":
     travel_time_matrix_path = "/path/to/travel_time_matrix.csv"
     filtered_output_path = "/path/to/filtered_travel_time.csv"
