@@ -136,10 +136,143 @@ def run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, 
             metric_cal.filter_destinations(output_path = num_of_dest_output_path, threshold = threshold) # filter travel time matrix based on threshold
             metric_cal.get_nth_travel_time(n  = n_closest, output_path = nth_travel_time_output_path) # compute n-th closest destination travel time
 
+    # calculate travel time reduction only in After condition
+    if is_after:
+        for item in types:
+            if item == "Jobs": 
+                print("For type Jobs IPR")
+            else:
+                # run metric comparison
+
+                # paths for number of key destinations
+                dest_threshold_before_csv_path = os.path.join(metric_out_folder, "dest_within_threshold_"+str(threshold)+"_"+item+"_baseline.csv")
+                dest_threshold_after_csv_path = os.path.join(metric_out_folder, "dest_within_threshold_"+str(threshold)+"_"+item+"_after.csv")
+                
+                # paths for travel time n_closest key destination
+                n_closest_before_csv_path = os.path.join(metric_out_folder, str(n_closest)+"th_closest_travel_time_"+item+"_baseline.csv")
+                n_closest_after_csv_path = os.path.join(metric_out_folder, str(n_closest)+"th_closest_travel_time_"+item+"_after.csv")
+
+                ctuid_reference_path = os.path.join(PROJECT_ROOT, "data", "results/CTUIDs.csv")
+                ct_to_neighbourhood = os.path.join(PROJECT_ROOT, "data/visual_data/CTUID-w-Neighborhood.csv")
+                
+                calculate_num_key_dest_diff(dest_threshold_before_csv_path, dest_threshold_after_csv_path, ctuid_reference_path, ct_to_neighbourhood, item, threshold=threshold)
+                calculate_key_dest_trave_time_red(n_closest_before_csv_path, n_closest_after_csv_path, ctuid_reference_path, ct_to_neighbourhood, item, n_closest=n_closest)
 
 
+def calculate_num_key_dest_diff(before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, item, threshold=30):
+    total_destinations_df = pd.read_csv(CTUID_source)
+    area_names_df = pd.read_csv(neighbourhood_source)
 
-    # calculate metric comparison
+    # Add Neighbourhood Data
+    total_destinations_df = MetricCalculation.add_column_with_join(
+        total_destinations_df,
+        area_names_df,
+        base_ctuid_col='CTUID',
+        join_ctuid_col='CTUID',
+        join_column_name='AREA_NAME',
+        new_column_name='Neighbourhood'
+    )
+
+    before_column_names = {'from_id': 'from_id','to_id': 'to_id', 'CTUID':'CTUID',
+        'total_column': f'total_destinations_within_{threshold}_mins_before'}
+    
+    total_destinations_df = MetricCalculation.add_column_with_join(
+    total_destinations_df,
+    MetricCalculation.calculate_total_destinations(before_csv_path, CTUID_source, before_column_names),
+    base_ctuid_col='CTUID',
+    join_ctuid_col='CTUID',
+    join_column_name=f'total_destinations_within_{threshold}_mins_before',
+    new_column_name=f'total_destinations_within_{threshold}_mins_before'
+    )
+    # display(total_destinations_df.head(20))
+    after_column_names = {'from_id': 'from_id','to_id': 'to_id', 'CTUID':'CTUID',
+            'total_column': f'total_destinations_within_{threshold}_mins_after'}
+
+    # Add 'after' totals
+    total_destinations_df = MetricCalculation.add_column_with_join(
+        total_destinations_df,
+        MetricCalculation.calculate_total_destinations(after_csv_path, CTUID_source, after_column_names),
+        base_ctuid_col='CTUID',
+        join_ctuid_col='CTUID',
+        join_column_name=f'total_destinations_within_{threshold}_mins_after',
+        new_column_name=f'total_destinations_within_{threshold}_mins_after'
+    )
+
+    # Calculate Difference
+    total_destinations_df[f'total_destinations_within_{threshold}_mins_diff'] = (
+        total_destinations_df[f'total_destinations_within_{threshold}_mins_after'] - 
+        total_destinations_df[f'total_destinations_within_{threshold}_mins_before']
+    )
+
+    # Save the final DataFrame to CSV
+    # csv_output_path = f'../results/hospitals_{threshold}_before_after_diff.csv'
+    # [NINA][!!!!!][JAN/FEB IMPROVEMENT] DATA SAVE DESTINATION RESTRUCTURE
+    csv_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "COMBINE_num_dest_within_threshold_"+str(threshold)+"_"+item+".csv")
+    total_destinations_df.to_csv(csv_output_path, index=False)
+
+    # pivoted results for POWERBI
+    pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_num_dest_within_threshold_"+str(threshold)+"_"+item+".csv")
+    MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
+
+# calculate travel time reduction
+# [NINA][JAN/FEB IMPROVEMENT]: combine with the previous function if possible
+def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, item, n_closest=1):
+    total_destinations_df = pd.read_csv(CTUID_source)
+    area_names_df = pd.read_csv(neighbourhood_source)
+
+    before_csv = pd.read_csv(before_csv_path)
+    after_csv = pd.read_csv(after_csv_path)
+
+    # Add Neighbourhood data
+    total_destinations_df = MetricCalculation.add_column_with_join(
+        total_destinations_df,
+        area_names_df,
+        base_ctuid_col='CTUID',
+        join_ctuid_col='CTUID',
+        join_column_name='AREA_NAME',
+        new_column_name='Neighbourhood'
+    )
+    # # display(total_destinations_df.head(20))
+    # before_column_names = {'from_id': 'from_id','to_id': 'to_id', 'CTUID':'CTUID',
+    #         'total_column': f'travel_time_to_first_dest_before'}
+
+    total_destinations_df = MetricCalculation.add_column_with_join(
+        total_destinations_df,
+        before_csv,
+        base_ctuid_col='CTUID',
+        join_ctuid_col='from_id',
+        join_column_name=f'travel_time',
+        new_column_name=f'travel_time_to_first_dest_before'
+    )
+    # display(total_destinations_df.head(20))
+    # after_column_names = {'from_id': 'from_id','to_id': 'to_id', 'CTUID':'CTUID',
+    #         'total_column': f'travel_time_to_first_dest_after'}
+
+    # Add 'after' totals
+    total_destinations_df = MetricCalculation.add_column_with_join(
+        total_destinations_df,
+        after_csv,
+        base_ctuid_col='CTUID',
+        join_ctuid_col='from_id',
+        join_column_name=f'travel_time',
+        new_column_name=f'travel_time_to_first_dest_after'
+    )
+
+    # Calculate Difference
+    total_destinations_df[f'travel_time_to_first_dest_reduction'] = (
+        abs(total_destinations_df[f'travel_time_to_first_dest_after'] - 
+        total_destinations_df[f'travel_time_to_first_dest_before'])
+    )
+
+    # Save the final DataFrame to CSV
+    # csv_output_path = f'../results/first_hospitals_before_after_reduction.csv'
+    # [NINA][!!!!!][JAN/FEB IMPROVEMENT] DATA SAVE DESTINATION RESTRUCTURE
+    csv_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "COMBINE_travel_time_reduction_"+str(n_closest)+"th_"+item+".csv")
+    total_destinations_df.to_csv(csv_output_path, index=False)
+
+    # pivoted results for POWERBI
+    pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_travel_time_reduction_"+str(n_closest)+"th_"+item+".csv")
+    MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
 
 
 
