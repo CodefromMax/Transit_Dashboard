@@ -1,11 +1,11 @@
 """
 Running Travel Time Calculation + Metric Calculation for New GTFS Data
 """
-# import pandas as pd
+import pandas as pd
 import os
 import sys
 
-PROJECT_ROOT = os.path.abspath(os.path.join('../..')) # project root
+PROJECT_ROOT = os.path.abspath(os.path.join('../..')) # project root [NINA][!!!!!] make sure ends with /Transit_Dashboard
 sys.path.append(PROJECT_ROOT)
 print(PROJECT_ROOT)
 
@@ -88,12 +88,6 @@ def run_travel_time(OSM = OSM_PATH, GTFS = NEW_GTFS_PATH, types = RUN_TRAVEL_TIM
 
 def run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, "data/results/travel_time_matrix"), threshold = 30, n_closest =1, is_after = True, types = RUN_TRAVEL_TIME_TYPES):
     
-    # output suffix
-    if is_after:
-        out_suffix = "_after"
-    else:
-        out_suffix = "_baseline"
-
     # metric output paths
     metric_out_folder = os.path.join(PROJECT_ROOT, "data/results/metrics")
     # check if the output folder for travel time matrix exists,
@@ -102,23 +96,54 @@ def run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, 
     print("[DEBUG]: ", metric_out_folder)
     print("[DEBUG]: ",  os.path.exists(metric_out_folder))
 
+    # output suffix
+    if is_after:
+        out_suffix = "_after"
+    else:
+        # if run baseline, only run metric calculation, not calculate difference
+        out_suffix = "_baseline"
+
+    # calculate metrics for key destination and job access
     for item in types:
-        item_travel_time = os.path.join(travel_time_out_folder, item+out_suffix+".csv")
+
+        if item == "Jobs":
+            # travel time matrix for item
+            item_travel_time = os.path.join(travel_time_out_folder, item+out_suffix+".csv")
+            
+            # get employment data by census tract
+            # TODO: [NINA][!!!!!] PLEASE VERIFY PATH, REPLACE IF NECESSARY
+            employment_data = pd.read_csv(os.path.join(PROJECT_ROOT, "draft/Employment_data.csv"))
+            ctuid_reference_path = os.path.join(PROJECT_ROOT, "data", "results/CTUIDs.csv")
+            output_path  = os.path.join(metric_out_folder, item+"_access_threshold_"+str(threshold)+out_suffix+".csv")
+
+            # calculate metric for job access
+            metric_cal = MetricCalculation(item_travel_time)
+            CT_within_30 = metric_cal.filter_destinations(threshold = threshold)
+            CT_within_30_grouped = MetricCalculation.group_to_ids_by_ctuid(CT_within_30) #.to_csv("../results/CT_within_30_grouped.csv", index=False)
+            MetricCalculation.sum_jobs_by_from_id_and_fill_missing(CT_within_30_grouped, employment_data, ctuid_reference_path= ctuid_reference_path, output_path= output_path)
+       
+        else: 
+            # travel time matrix for item
+            item_travel_time = os.path.join(travel_time_out_folder, item+out_suffix+".csv")
+
+            # Destination Paths
+            num_of_dest_output_path = os.path.join(metric_out_folder, "dest_within_threshold_"+str(threshold)+"_"+item+out_suffix+".csv") # filtered travel time matrix with time threshold
+            nth_travel_time_output_path = os.path.join(metric_out_folder, str(n_closest)+"th_closest_travel_time_"+item+out_suffix+".csv") # n-th closest travel time
         
-        # create metric calculation object 
-        # [NINA][!!!!!] the travel time matrix has to be computed with the run_travel_time function to ensure naming consistency
-        metric_cal = MetricCalculation(item_travel_time)
+            # Calculate metrics
+            # [NINA][!!!!!] the travel time matrix has to be computed with the run_travel_time function to ensure naming consistency
+            metric_cal = MetricCalculation(item_travel_time)
+            metric_cal.filter_destinations(output_path = num_of_dest_output_path, threshold = threshold) # filter travel time matrix based on threshold
+            metric_cal.get_nth_travel_time(n  = n_closest, output_path = nth_travel_time_output_path) # compute n-th closest destination travel time
 
 
 
 
-
-
-
-
-
+    # calculate metric comparison
 
 
 
 run_travel_time(OSM = OSM_PATH, GTFS = NEW_GTFS_PATH, types = RUN_TRAVEL_TIME_TYPES, is_after = True)
+run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, "data/results/travel_time_matrix"), threshold = 30, n_closest =1, is_after = True, types = RUN_TRAVEL_TIME_TYPES)
+
 
