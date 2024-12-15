@@ -285,9 +285,79 @@ class MetricCalculation:
         return grouped_df
 
 
-    def sum_jobs_by_from_id_and_fill_missing(
-        grouped_to_ids_df, job_data_df, ctuid_reference_path, output_path=None
-    ):
+    # def sum_jobs_by_from_id_and_fill_missing(
+    #     grouped_to_ids_df, job_data_df, ctuid_reference_path, output_path=None
+    # ):
+    #     """
+    #     Sums the jobs for each type across all `census_id` values associated with each `from_id`,
+    #     and ensures all `CTUIDs` from the reference list are present in the output.
+
+    #     Args:
+    #         grouped_to_ids_df (pd.DataFrame): DataFrame containing `from_id` and lists of `to_id` values.
+    #         job_data_df (pd.DataFrame): DataFrame containing `census_id` and job types.
+    #         ctuid_reference_path (str): Path to the reference CSV containing all required `CTUIDs`.
+    #         output_path (str, optional): Path to save the result as a CSV. If None, does not save.
+
+    #     Returns:
+    #         pd.DataFrame: A DataFrame with `from_id` (as `CTUID`) and columns for each job type.
+    #     """
+    #     # Dynamically identify the ID column and job columns
+    #     id_column = [col for col in job_data_df.columns if 'ID' in col.upper()]
+    #     if len(id_column) != 1:
+    #         raise ValueError("The job data must have exactly one column with 'ID' in its name.")
+    #     id_column = id_column[0]
+
+    #     job_columns = [col for col in job_data_df.columns if col not in [id_column]]
+
+    #     # Ensure the grouped DataFrame has the required columns
+    #     if 'from_id' not in grouped_to_ids_df.columns or 'to_id_list' not in grouped_to_ids_df.columns:
+    #         raise ValueError("Grouped data must contain 'from_id' and 'to_id_list' columns.")
+
+    #     # Initialize a list to store results
+    #     results = []
+    #     grouped_to_ids_df["from_id"] = grouped_to_ids_df["from_id"].apply(lambda x: f"{float(x):.2f}")
+
+    #     # Iterate over each row in the grouped DataFrame
+    #     for _, row in grouped_to_ids_df.iterrows():
+    #         from_id = row['from_id']
+    #         to_id_list = row['to_id_list']
+
+    #         # Filter the job data for the relevant `census_id` values
+    #         relevant_jobs = job_data_df[job_data_df[id_column].isin(to_id_list)]
+
+    #         # Sum jobs across all types
+    #         total_jobs = {col: relevant_jobs[col].sum() for col in job_columns}
+
+    #         # Append the result
+    #         total_jobs = {"CTUID": from_id, **total_jobs}
+    #         results.append(total_jobs)
+
+    #     # Convert results to a DataFrame
+    #     result_df = pd.DataFrame(results)
+
+    #     # Load the reference CTUIDs
+    #     ctuid_reference_df = pd.read_csv(ctuid_reference_path)
+    #     ctuid_reference_df['CTUID'] = ctuid_reference_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+    #     all_ctuids = ctuid_reference_df['CTUID']
+
+    #     # Ensure all CTUIDs are included in the result, filling missing ones with zeros
+    #     result_df['CTUID'] = result_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+    #     result_df = result_df.set_index('CTUID')
+
+    #     missing_ctuids = set(all_ctuids) - set(result_df.index)
+    #     for ctuid in missing_ctuids:
+    #         result_df.loc[ctuid] = {col: 0 for col in job_columns}
+
+    #     result_df = result_df.reset_index()
+
+    #     # Save the result to a CSV if output_path is provided
+    #     if output_path:
+    #         result_df.to_csv(output_path, index=False)
+    #         print(f"Summed job data saved to {output_path}")
+
+    #     return result_df
+    @staticmethod
+    def sum_jobs_by_from_id_and_fill_missing(grouped_to_ids_df, job_data_df, ctuid_reference_path, output_path=None):
         """
         Sums the jobs for each type across all `census_id` values associated with each `from_id`,
         and ensures all `CTUIDs` from the reference list are present in the output.
@@ -359,15 +429,93 @@ class MetricCalculation:
 
 
 
-if __name__ == "__main__":
-    travel_time_matrix_path = "/path/to/travel_time_matrix.csv"
-    filtered_output_path = "/path/to/filtered_travel_time.csv"
-    metrics_output_path = "/path/to/accessibility_metrics.csv"
+    def calculate_accessible_jobs(self, thresholds, employment_data_path, ctuid_reference_path, output_path):
+            """
+            A combined method to perform filtering, grouping, and summing jobs by From_CTUID.
+            """
+            Employment_data = pd.read_csv(employment_data_path)
 
-    metric_calculator = MetricCalculation(travel_time_matrix_path)
+            # Filter destinations within the threshold
+            filtered_data = self.filter_destinations(threshold=thresholds)
 
-    # Filter destinations based on top N or threshold
-    metric_calculator.filter_destinations(filtered_output_path, top_n=5)
+            # Group by CTUID
+            grouped_data = self.group_to_ids_by_ctuid(filtered_data)
 
-    # Calculate accessibility metrics
-    metric_calculator.calculate_accessibility_metrics(metrics_output_path)
+            # Sum jobs and fill missing values
+            self.sum_jobs_by_from_id_and_fill_missing(
+                grouped_data,
+                Employment_data,
+                ctuid_reference_path,
+                output_path
+            )
+
+
+
+
+    def combine_job_access_before_after(before_csv_path, after_csv_path, output_path=None):
+        """
+        Computes the 'before', 'after', and absolute difference for each category from the before and after datasets,
+        and pivots the job type columns into rows.
+
+        Args:
+            before_csv_path (str): Path to the CSV file containing the 'before' data.
+            after_csv_path (str): Path to the CSV file containing the 'after' data.
+            output_path (str, optional): Path to save the result as a CSV. If None, does not save.
+
+        Returns:
+            pd.DataFrame: A pivoted DataFrame with columns: 'CTUID', 'Job_type', 'Time', 'Num_jobs'.
+        """
+        # Load the before and after datasets
+        before_df = pd.read_csv(before_csv_path)
+        after_df = pd.read_csv(after_csv_path)
+
+        # Ensure the datasets have the same structure
+        if not before_df.columns.equals(after_df.columns):
+            raise ValueError("The before and after datasets must have the same columns.")
+
+        # Extract category columns (excluding `CTUID`)
+        categories = [col for col in before_df.columns if col != "CTUID"]
+
+        # Calculate the absolute difference for each category
+        diff_df = before_df.copy()
+        for category in categories:
+            diff_df[category] = abs(after_df[category] - before_df[category])
+
+        # Add a time column to each dataset
+        before_df = before_df.melt(id_vars=["CTUID"], value_vars=categories, 
+                                var_name="Job_type", value_name="Num_jobs")
+        before_df["Time"] = "before"
+
+        after_df = after_df.melt(id_vars=["CTUID"], value_vars=categories, 
+                                var_name="Job_type", value_name="Num_jobs")
+        after_df["Time"] = "after"
+
+        diff_df = diff_df.melt(id_vars=["CTUID"], value_vars=categories, 
+                            var_name="Job_type", value_name="Num_jobs")
+        diff_df["Time"] = "difference"
+
+        # Concatenate the before, after, and difference data
+        combined_df = pd.concat([before_df, after_df, diff_df], ignore_index=True)
+
+        # Reorder the columns
+        combined_df = combined_df[["CTUID", "Job_type", "Time", "Num_jobs"]]
+        combined_df['CTUID'] = combined_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+        # Save the result to a CSV if output_path is provided
+        if output_path:
+            combined_df.to_csv(output_path, index=False)
+            print(f"Pivoted job before after data saved to {output_path}")
+
+        return combined_df
+
+
+
+
+# if __name__ == "__main__":
+#     travel_time_matrix_path = "/path/to/travel_time_matrix.csv"
+#     filtered_output_path = "/path/to/filtered_travel_time.csv"
+#     metrics_output_path = "/path/to/accessibility_metrics.csv"
+
+#     metric_calculator = MetricCalculation(travel_time_matrix_path)
+
+#     # Filter destinations based on top N or threshold
+#     metric_calculator.filter_destinations(filtered_output_path, top_n=5)
