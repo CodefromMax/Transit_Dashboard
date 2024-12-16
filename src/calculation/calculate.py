@@ -18,7 +18,12 @@ CT_CENTROID_PATH = os.path.join(PROJECT_ROOT, "data/census_tract_data/toronto_ct
 
 print("[DEBUG]: ", OSM_PATH)
 
-RUN_TRAVEL_TIME_TYPES = ["Hospitals", "Schools", "Libraries", "Cooling_Center", "Jobs"]
+RUN_TRAVEL_TIME_TYPES = ["Hospitals", "Schools", "Libraries", "Cooling_Center", "Jobs"] # update to separate metric categories
+
+# separate calculation based on metric types
+KEY_DEST = ["Hospitals", "Schools", "Libraries", "Cooling_Center"]
+JOB = ["Jobs"]
+ECO = []
 
 # TODO: [JAN/FEB IMPROVEMEMT] for not Overwriting any previously calculated after travel time matrix / metrics
 # def get_unique_filename(base_filename):
@@ -213,6 +218,7 @@ def calculate_num_key_dest_diff(before_csv_path, after_csv_path, CTUID_source, n
     # pivoted results for POWERBI
     pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_num_dest_within_threshold_"+str(threshold)+"_"+item+".csv")
     MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
+    temp_reformat_cols(pivoted_output_path, item)
 
 # calculate travel time reduction
 # [NINA][JAN/FEB IMPROVEMENT]: combine with the previous function if possible
@@ -273,6 +279,23 @@ def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_sou
     # pivoted results for POWERBI
     pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_travel_time_reduction_"+str(n_closest)+"th_"+item+".csv")
     MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
+    temp_reformat_cols(pivoted_output_path, item)
+
+# [NINA][!!!!!][JAN/FEB IMPROVEMENT]: add column for metric, metric type, category, before_after_diff, need to be inserted into pivot function
+# metric: the metric types: [Social, Economic, Environmental]
+# metric type: {Social: [num_dest_within_threshold_mins, n_th_dest_travel_time_reduction], Economic: [num_dest_within_threshold_mins]}
+# category: {Social: [Hospitals, Schools, Libraries, Cooling_Center], Economic: [Job Categories]}
+# before_after_diff: [before, after, difference]
+
+def temp_reformat_cols(path, item):
+    pivoted_df = pd.read_csv(path)
+
+    pivoted_df["Metric"] = "Social"
+    pivoted_df["Category"]  = item
+    pivoted_df["Metric_Type"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[0])
+    pivoted_df["Before_After_Difference"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[-1])
+    pivoted_df.to_csv(path, index=False)
+    
 
 
 
