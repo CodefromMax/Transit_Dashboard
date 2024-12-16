@@ -40,6 +40,8 @@ __pycache__/*
 *.pyc
 
 # data
-# *.json
-# *.geojson
-# *.csv
+*.json
+*.geojson
+*.csv
+
+*.txt
