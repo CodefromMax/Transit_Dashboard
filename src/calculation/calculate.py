@@ -282,8 +282,8 @@ def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_sou
     temp_reformat_cols(pivoted_output_path, item)
 
 # [NINA][!!!!!][JAN/FEB IMPROVEMENT]: add column for metric, metric type, category, before_after_diff, need to be inserted into pivot function
-# metric: the metric types: [Social, Economic, Environmental]
-# metric type: {Social: [num_dest_within_threshold_mins, n_th_dest_travel_time_reduction], Economic: [num_dest_within_threshold_mins]}
+# metric type: the metric types: [Social, Economic, Environmental]
+# metric name: {Social: [num_dest_within_threshold_mins, n_th_dest_travel_time_reduction], Economic: [num_dest_within_threshold_mins]}
 # category: {Social: [Hospitals, Schools, Libraries, Cooling_Center], Economic: [Job Categories]}
 # before_after_diff: [before, after, difference]
 
