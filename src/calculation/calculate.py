@@ -290,12 +290,16 @@ def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_sou
 def temp_reformat_cols(path, item):
     pivoted_df = pd.read_csv(path)
 
-    pivoted_df["Metric"] = "Social"
+    pivoted_df["Metric_Type"] = "Social"
     pivoted_df["Category"]  = item
-    pivoted_df["Metric_Type"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[0])
-    pivoted_df["Before_After_Difference"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[-1])
-    pivoted_df.to_csv(path, index=False)
+    pivoted_df["Metric_Name"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[0])
+    pivoted_df["Before_After_Benefit"] = pivoted_df["Before_After_Difference"].transform(lambda x: x.rsplit('_', 1)[-1])
     
+    reorder_col = ['CTUID','Neighbourhood','Metric_Type','Metric_Name','Category','Before_After_Benefit', 'Value']
+    pivoted_df = pivoted_df[reorder_col]
+    pivoted_df.to_csv(path, index=False)
+    # cols ['CTUID','Neighbourhood','Metric_Type','Metric_Name','Category','Before_After_Benefit', 'Value']
+      
 
 
 
