@@ -272,7 +272,11 @@ class MetricCalculation:
             raise ValueError(f"Columns '{from_id_col}' and '{to_id_col}' must exist in the input data.")
 
         # Group by `from_id` and aggregate `to_id` into lists
-        grouped_df = df.groupby(from_id_col)[to_id_col].apply(list).reset_index()
+        # grouped_df = df.groupby(from_id_col)[to_id_col].apply(list).reset_index()
+        grouped_df = (
+        df.groupby(from_id_col)[to_id_col]
+        .apply(lambda x: [x.name] + x.tolist())  # Prepend `from_id` (group name) to the list
+        .reset_index())
         # .apply(lambda x: [f"{float(item):.2f}" for item in x])
         # Rename the aggregated column for clarity
         grouped_df = grouped_df.rename(columns={to_id_col: f'{to_id_col}_list'})
