@@ -350,7 +350,7 @@ def combine_metrics_tables(hospital_dest_file, cooling_dest_file, school_dest_fi
                 "Neighbourhoods": row['Neighbourhood'],
                 "Metric_Type": "Social",
                 "Metric_Name": metric_name,
-                "Threshold" : (metric_name.split(" ")[-2]),
+                "Threshold" : (0 if "reduction" in metric_name else metric_name.split(" ")[-2]),
                 "Category": category,
                 "Before_After_Benefit": (
                     "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
