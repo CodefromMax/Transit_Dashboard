@@ -1,5 +1,6 @@
 """
 Running Travel Time Calculation + Metric Calculation for New GTFS Data
+Ref to before_after_travel_time_calculation.ipynb MetricCalculation_example.ipynb by Max
 """
 import pandas as pd
 import os
@@ -349,6 +350,7 @@ def combine_metrics_tables(hospital_dest_file, cooling_dest_file, school_dest_fi
                 "Neighbourhoods": row['Neighbourhood'],
                 "Metric_Type": "Social",
                 "Metric_Name": metric_name,
+                "Threshold" : (metric_name.split(" ")[-2]),
                 "Category": category,
                 "Before_After_Benefit": (
                     "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
@@ -373,6 +375,7 @@ def combine_metrics_tables(hospital_dest_file, cooling_dest_file, school_dest_fi
     
     # Process the job access dataset
     job_access_df = pd.read_csv(job_access_file)
+    job_access_threshold = 30 # TODO: hard coded. 
     job_access_df['CTUID'] = job_access_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
     if 'Neighbourhood' not in job_access_df.columns:
         job_access_df = job_access_df.merge(neighbourhood_df, on='CTUID', how='left')
@@ -383,6 +386,7 @@ def combine_metrics_tables(hospital_dest_file, cooling_dest_file, school_dest_fi
             "Neighbourhoods": row['Neighbourhood'],
             "Metric_Type": "Economic",
             "Metric_Name": "Job Access",
+            "Threshold": 30,
             "Category": row['Job_type'],
             "Before_After_Benefit": (
                 "before" if row['Time'].lower() == "before" else
@@ -434,5 +438,7 @@ combine_metrics_tables(hospital_dest_file = hospital_dest_path, cooling_dest_fil
                        library_file = library_path,cooling_file = cooling_path,
                        job_access_file = job_access_path,neighbourhood_file = neighbourhood_path,
                        output_path = combined_output_path)
+
+
 
 
