@@ -122,10 +122,12 @@ def run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, 
             output_path  = os.path.join(metric_out_folder, item+"_access_threshold_"+str(threshold)+out_suffix+".csv")
 
             # calculate metric for job access
+            # [Updated]
             metric_cal = MetricCalculation(item_travel_time)
-            CT_within_30 = metric_cal.filter_destinations(threshold = threshold)
-            CT_within_30_grouped = MetricCalculation.group_to_ids_by_ctuid(CT_within_30) #.to_csv("../results/CT_within_30_grouped.csv", index=False)
-            MetricCalculation.sum_jobs_by_from_id_and_fill_missing(CT_within_30_grouped, employment_data, ctuid_reference_path= ctuid_reference_path, output_path= output_path)
+            # CT_within_30 = metric_cal.filter_destinations(threshold = threshold)
+            # CT_within_30_grouped = MetricCalculation.group_to_ids_by_ctuid(CT_within_30) #.to_csv("../results/CT_within_30_grouped.csv", index=False)
+            # MetricCalculation.sum_jobs_by_from_id_and_fill_missing(CT_within_30_grouped, employment_data, ctuid_reference_path= ctuid_reference_path, output_path= output_path)
+            metric_cal.calculate_accessible_jobs(thresholds=threshold, employment_data_path=employment_data, ctuid_reference_path=ctuid_reference_path, output_path=output_path)
        
         else: 
             # travel time matrix for item
@@ -146,6 +148,23 @@ def run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, 
         for item in types:
             if item == "Jobs": 
                 print("For type Jobs IPR")
+                item_travel_time = os.path.join(travel_time_out_folder, item+out_suffix+".csv")
+                # get employment data by census tract
+                # TODO: [NINA][!!!!!] PLEASE VERIFY PATH, REPLACE IF NECESSARY
+                employment_data = pd.read_csv(os.path.join(PROJECT_ROOT, "draft/Employment_data.csv"))
+                ctuid_reference_path = os.path.join(PROJECT_ROOT, "data", "results/CTUIDs.csv")
+                output_path  = os.path.join(metric_out_folder, item+"_access_threshold_"+str(threshold)+out_suffix+".csv")
+
+                # TODO: validate logic (ref MetricCalculation_example.ipynb)
+                metric_cal = MetricCalculation(item_travel_time)
+                metric_cal.calculate_accessible_jobs(thresholds=threshold, employment_data_path=employment_data, ctuid_reference_path=ctuid_reference_path, output_path=output_path)
+                
+                # TODO: [NINA][!!!!!] PLEASE VERIFY PATH, REPLACE IF NECESSARY
+                job_before_path = os.path.join(metric_out_folder, item+"_access_threshold_"+str(threshold)+"_baseline.csv")
+                job_after_path = output_path
+                combined_job_output_path = os.path.join(metric_out_folder, "CT_job_access_Before_After_Diff.csv")
+                MetricCalculation.combine_job_access_before_after(job_before_path, job_after_path, combined_job_output_path)
+            
             else:
                 # run metric comparison
 
@@ -218,7 +237,7 @@ def calculate_num_key_dest_diff(before_csv_path, after_csv_path, CTUID_source, n
     # pivoted results for POWERBI
     pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_num_dest_within_threshold_"+str(threshold)+"_"+item+".csv")
     MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
-    temp_reformat_cols(pivoted_output_path, item)
+    # temp_reformat_cols(pivoted_output_path, item)
 
 # calculate travel time reduction
 # [NINA][JAN/FEB IMPROVEMENT]: combine with the previous function if possible
@@ -279,7 +298,7 @@ def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_sou
     # pivoted results for POWERBI
     pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_travel_time_reduction_"+str(n_closest)+"th_"+item+".csv")
     MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
-    temp_reformat_cols(pivoted_output_path, item)
+    # temp_reformat_cols(pivoted_output_path, item)
 
 # [NINA][!!!!!][JAN/FEB IMPROVEMENT]: add column for metric, metric type, category, before_after_diff, need to be inserted into pivot function
 # metric type: the metric types: [Social, Economic, Environmental]
@@ -300,10 +319,120 @@ def temp_reformat_cols(path, item):
     pivoted_df.to_csv(path, index=False)
     # cols ['CTUID','Neighbourhood','Metric_Type','Metric_Name','Category','Before_After_Benefit', 'Value']
       
+def combine_metrics_tables(hospital_dest_file, cooling_dest_file, school_dest_file, library_dest_file,  hospital_file, school_file, library_file, cooling_file, job_access_file, neighbourhood_file, output_path):
+    """
+    Combines multiple metric tables into one unified table.
 
+    Args:
+        hospital_dest_file (str): Path to the hospital destinations file.
+        pivoted_file (str): Path to the pivoted travel time reduction file.
+        library_file (str): Path to the library file.
+        cooling_file (str): Path to the cooling center file.
+        job_access_file (str): Path to the job access file.
+        neighbourhood_file (str): Path to the CTUID-Neighbourhood mapping file.
+        output_path (str): Path to save the combined table.
+    """
+    # Load the neighbourhood mapping
+    neighbourhood_df = pd.read_csv(neighbourhood_file)
+    neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+
+    # Function to process individual datasets
+    def process_dataset(file_path, metric_name, category):
+        df = pd.read_csv(file_path)
+        df['CTUID'] = df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+        if 'Neighbourhood' not in df.columns:
+            df = df.merge(neighbourhood_df, on='CTUID', how='left')
+            df.rename(columns={'AREA_NAME': 'Neighbourhood'}, inplace=True)
+        return pd.DataFrame([
+            {
+                "CTUID": row['CTUID'],
+                "Neighbourhoods": row['Neighbourhood'],
+                "Metric_Type": "Social",
+                "Metric_Name": metric_name,
+                "Category": category,
+                "Before_After_Benefit": (
+                    "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
+                    "after" if row['Before_After_Difference'].split('_')[-1] == "after" else
+                    "benefit"
+                ),
+                "Value": row['Value']
+            }
+            for _, row in df.iterrows()
+        ])
+
+    # Process each dataset
+    hospital_dest_transformed = process_dataset(hospital_dest_file, "Number of Destinations within 30 mins", "Hospital")
+    cooling_dest_transformed = process_dataset(cooling_dest_file, "Number of Destinations within 30 mins", "Cooling Centre")
+    school_dest_transformed = process_dataset(school_dest_file, "Number of Destinations within 30 mins", "School")
+    library_dest_transformed = process_dataset(library_dest_file, "Number of Destinations within 30 mins", "Library")
+
+    hospital_transformed = process_dataset(hospital_file, "Travel Time Reduction to First Destination", "Hospital")
+    cooling_transformed = process_dataset(cooling_file, "Travel Time Reduction to First Destination", "Cooling Centre")
+    school_transformed = process_dataset(school_file, "Travel Time Reduction to First Destination", "School")
+    library_transformed = process_dataset(library_file, "Travel Time Reduction to First Destination", "Library")
+    
+    # Process the job access dataset
+    job_access_df = pd.read_csv(job_access_file)
+    job_access_df['CTUID'] = job_access_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+    if 'Neighbourhood' not in job_access_df.columns:
+        job_access_df = job_access_df.merge(neighbourhood_df, on='CTUID', how='left')
+        job_access_df.rename(columns={'AREA_NAME': 'Neighbourhood'}, inplace=True)
+    job_access_transformed = pd.DataFrame([
+        {
+            "CTUID": row['CTUID'],
+            "Neighbourhoods": row['Neighbourhood'],
+            "Metric_Type": "Economic",
+            "Metric_Name": "Job Access",
+            "Category": row['Job_type'],
+            "Before_After_Benefit": (
+                "before" if row['Time'].lower() == "before" else
+                "after" if row['Time'].lower() == "after" else
+                "benefit"
+            ),
+            "Value": row['Num_jobs']
+        }
+        for _, row in job_access_df.iterrows()
+    ])
+
+    # Combine all datasets
+    combined_df = pd.concat([
+        hospital_dest_transformed,
+        cooling_dest_transformed,
+        school_dest_transformed,
+        library_dest_transformed,
+        hospital_transformed,
+        library_transformed,
+        cooling_transformed,
+        school_transformed,
+        library_transformed,
+        job_access_transformed
+    ], ignore_index=True)
+
+    # Save the combined table
+    combined_df.to_csv(output_path, index=False)
+    print(f"Combined metrics table saved to {output_path}")
 
 
 run_travel_time(OSM = OSM_PATH, GTFS = NEW_GTFS_PATH, types = RUN_TRAVEL_TIME_TYPES, is_after = True)
 run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, "data/results/travel_time_matrix"), threshold = 30, n_closest =1, is_after = True, types = RUN_TRAVEL_TIME_TYPES)
+
+hospital_dest_path = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Hospitals.csv"
+cooling_dest_path = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Cooling_Center.csv"
+school_dest_path = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Schools.csv"
+library_dest_path = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Libraries.csv"
+hospital_path = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv"
+school_path = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv"
+library_path = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv"
+cooling_path = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Cooling_Center.csv"
+
+job_access_path = "../../../data/results/metrics/CT_job_access_Before_After_Diff.csv"
+neighbourhood_path = "../../../data/visual_data/CTUID-w-Neighborhood.csv"
+combined_output_path = "../../../data/results/metrics/total_Metric_Table.csv"
+combine_metrics_tables(hospital_dest_file = hospital_dest_path, cooling_dest_file = cooling_dest_path, 
+                       school_dest_file = school_dest_path, library_dest_file = library_dest_path,
+                       hospital_file = hospital_path,school_file = school_path,
+                       library_file = library_path,cooling_file = cooling_path,
+                       job_access_file = job_access_path,neighbourhood_file = neighbourhood_path,
+                       output_path = combined_output_path)
 
 
