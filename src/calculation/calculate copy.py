@@ -13,7 +13,7 @@ print(PROJECT_ROOT)
 from src.calculation.travel_time_matrix.TravelTimeCalculation import TravelTimeCalculation
 from src.calculation.Metric_Calculation.MetricCalculation import MetricCalculation
 OSM_PATH = os.path.join(PROJECT_ROOT, "data/OSM_data/Toronto.osm.pbf")
-# OLD_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/extracted/2024-10-22_testing")
+OLD_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/raw/latest_feed_version_2024-10-22.zip")
 NEW_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/gtfs_output_v10.zip") # TODO: [!!!!!] PLEASE INSERT THE PATH TO WHERE THE NEW GTFS DATA IS SAVED
 CT_CENTROID_PATH = os.path.join(PROJECT_ROOT, "data/census_tract_data/toronto_ct_centroids1.geojson")
 
@@ -303,7 +303,8 @@ def temp_reformat_cols(path, item):
       
 
 
-
+run_travel_time(OSM = OSM_PATH, GTFS = OLD_GTFS_PATH, types = RUN_TRAVEL_TIME_TYPES, is_after = False)
+run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, "data/results/travel_time_matrix"), threshold = 30, n_closest =1, is_after = False, types = RUN_TRAVEL_TIME_TYPES)
 run_travel_time(OSM = OSM_PATH, GTFS = NEW_GTFS_PATH, types = RUN_TRAVEL_TIME_TYPES, is_after = True)
 run_metrics_calculation(travel_time_out_folder = os.path.join(PROJECT_ROOT, "data/results/travel_time_matrix"), threshold = 30, n_closest =1, is_after = True, types = RUN_TRAVEL_TIME_TYPES)
 
