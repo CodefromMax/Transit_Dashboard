@@ -609,6 +609,97 @@ class MetricCalculation:
         output_df.to_csv(output_path, index=False)
         print(f"Results saved to {output_path}")
 
+
+    @staticmethod
+    def calculate_commute_time_reduction( before_matrix_path, after_matrix_path=None, thresholds=None, category="job", output_path="travel_time_results.csv"):
+        """
+        Calculates the average travel time for each CTUID within specified thresholds for 'before' and 'after' data.
+
+        Args:
+            before_matrix_path (str): Path to the "before" travel time matrix CSV.
+            after_matrix_path (str, optional): Path to the "after" travel time matrix CSV. If None, only "before" calculations are performed.
+            thresholds (list of tuples): List of travel time thresholds, e.g., [(0, 15), (15, 30), (30, 45)].
+            category (str): The category for which travel times are being calculated, e.g., "job".
+            output_path (str): Path to save the output CSV file.
+        """
+        # Load the "before" matrix
+        before_matrix = pd.read_csv(before_matrix_path)
+        # Load the "after" matrix if provided
+        after_matrix = pd.read_csv(after_matrix_path) if after_matrix_path else None
+
+        # Default thresholds if none are provided
+        if thresholds is None:
+            thresholds = [(0, 15), (15, 30), (30, 45), (45, 60)]
+
+        results = []
+
+        # Iterate through all CTUIDs in the "before" matrix
+        for ctuid in before_matrix['from_id'].unique():
+            for threshold in thresholds:
+                lower, upper = threshold
+
+                # Filter "before" travel time data for the given threshold
+                before_filtered = before_matrix[
+                    (before_matrix['from_id'] == ctuid) &
+                    (before_matrix['travel_time'] > lower) &
+                    (before_matrix['travel_time'] <= upper)
+                ]
+
+                # Get the list of CTUIDs within the threshold and calculate the average travel time
+                before_ctuids = before_filtered['to_id'].tolist()
+                before_avg_time = before_filtered['travel_time'].mean()
+                before_total_time = sum(before_filtered['travel_time'])
+                # Record the "before" results
+                results.append({
+                    'CTUID': f"{float(ctuid):.2f}",
+                    'Travel_Time_Threshold': f"{lower} to {upper}",
+                    'Category': category,
+                    'Before_After_Benefit': 'before',
+                    'Average Value': before_avg_time,
+                    'Total Value': before_total_time,
+                    'CTUID_List': before_ctuids
+                })
+
+                # If "after" data is provided, calculate the "after" travel time averages
+                if after_matrix is not None:
+                    # Filter "after" travel time data using the list of CTUIDs from the "before" data
+                    after_filtered = after_matrix[
+                        (after_matrix['from_id'] == ctuid) &
+                        (after_matrix['to_id'].isin(before_ctuids))
+                    ]
+
+                    # Calculate the new average travel time for the "after" data
+                    after_avg_time = after_filtered['travel_time'].mean()
+                    after_total_time = sum(after_filtered['travel_time'])
+                    # Record the "after" results
+                    results.append({
+                        'CTUID': f"{float(ctuid):.2f}",
+                        'Travel_Time_Threshold': f"{lower} to {upper}",
+                        'Category': category,
+                        'Before_After_Benefit': 'after',
+                        'Average Value': after_avg_time,
+                        'Total Value': after_total_time,
+                        'CTUID_List': before_ctuids  # Same list of CTUIDs as "before"
+                    })
+
+                    # Calculate and record the benefit (after - before)
+                    avg_benefit_value = before_avg_time - after_avg_time if before_avg_time is not None else None
+                    total_benefit_value = before_total_time - after_total_time if before_total_time is not None else None 
+                    results.append({
+                        'CTUID': f"{float(ctuid):.2f}",
+                        'Travel_Time_Threshold': f"{lower} to {upper}",
+                        'Category': category,
+                        'Before_After_Benefit': 'benefit',
+                        'Average Value': avg_benefit_value,
+                        'Total Value': total_benefit_value,
+                        'CTUID_List': before_ctuids  # Same list of CTUIDs
+                    })
+
+        # Save results to a CSV file
+        output_df = pd.DataFrame(results)
+        output_df.to_csv(output_path, index=False)
+        print(f"Results saved to {output_path}")
+
     # if __name__ == "__main__":
     #     travel_time_matrix_path = "/path/to/travel_time_matrix.csv"
     #     filtered_output_path = "/path/to/filtered_travel_time.csv"
