@@ -7,7 +7,8 @@ import os
 import sys
 
 # [!!!!!] make sure ends with /Transit_Dashboard -> project root
-PROJECT_ROOT = os.path.abspath(os.path.join('../..')) 
+PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
+# os.path.abspath(os.path.join('../..')) 
 sys.path.append(PROJECT_ROOT)
 print(PROJECT_ROOT)
 
@@ -18,7 +19,8 @@ from src.calculation.Metric_Calculation.MetricCalculation import MetricCalculati
 # path to data
 # TODO [!!!!!]: move CTUID_Reference to /data/visual_data or /data/census_tract_data
 DATA_PATH = {
-    "OSM":  os.path.join(PROJECT_ROOT, "data/OSM_data/Toronto.osm.pbf"),
+    "OSM": "/Users/max/Desktop/Transit_Dashboard/data/OSM_data/Toronto.osm.pbf", 
+    # os.path.join(PROJECT_ROOT, "data/OSM_data/Toronto.osm.pbf"),
     "Employment_Data": os.path.join(PROJECT_ROOT, "draft/Employment_data.csv"),
     "Key_Destination_Data": os.path.join(PROJECT_ROOT, "data/key_destination_data"),
     "CT_Centroid": os.path.join(PROJECT_ROOT, "data/census_tract_data/toronto_ct_centroids1.geojson"),
@@ -63,7 +65,7 @@ class CalculationPipeline():
         self.line_root = os.path.join(PROJECT_ROOT, "data", "results")
         self.travel_time_path = os.path.join(self.line_root, "travel_time")
         self.metric_path = os.path.join(self.line_root, "metrics")
-        if not os.path.existis(self.line_root):
+        if not os.path.exists(self.line_root):
             os.makedirs(self.line_root)
             os.makedirs(self.travel_time_path)
             os.makedirs(self.metric_path)
@@ -72,7 +74,7 @@ class CalculationPipeline():
             # Terminate the runtime if the file already exists
             # TODO: need to integrate this with frontend display
             print("[WARNING]: THIS FILE NAME ALREADY EXISTS, CONTINUE RUNNING WILL OVERWRITE THE PREVIOUS VERSION")
-            sys.exit()
+            # sys.exit()
 
 
     def travel_time_calculation(self):
@@ -190,9 +192,10 @@ class CalculationPipeline():
                         n_closest_before_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_baseline.csv")
                         n_closest_after_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_after.csv")
                         
+                        print("[DEBUG]: calculate_num_key_dest_diff threshold: ", threshold)
                         self.calculate_num_key_dest_diff(dest_threshold_before_csv_path, dest_threshold_after_csv_path, 
                                                          DATA_PATH["CTUID_Reference"], DATA_PATH["CT_to_Neighbourhood"], 
-                                                         category, threshold=threshold)
+                                                         category, threshold)
                         print("[DEBUG]: Social - number of key destination accessible COMPLETED")
 
                         
@@ -211,7 +214,8 @@ class CalculationPipeline():
 
 
 
-    def calculate_num_key_dest_diff(before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, item, threshold=30):
+    def calculate_num_key_dest_diff(self, before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, 
+                                    item, threshold):
         print("[DEBUG]: In calculate_num_key_dest_diff")
         total_destinations_df = pd.read_csv(CTUID_source)
         area_names_df = pd.read_csv(neighbourhood_source)
@@ -270,7 +274,7 @@ class CalculationPipeline():
 
     # calculate travel time reduction
     # [NINA][JAN/FEB IMPROVEMENT]: combine with the previous function if possible
-    def calculate_key_dest_trave_time_red(before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, item, n_closest=1):
+    def calculate_key_dest_trave_time_red(self, before_csv_path, after_csv_path, CTUID_source, neighbourhood_source, item, n_closest=1):
         print("[DEBUG]: In calculate_key_dest_trave_time_red")
         total_destinations_df = pd.read_csv(CTUID_source)
         area_names_df = pd.read_csv(neighbourhood_source)
@@ -331,7 +335,7 @@ class CalculationPipeline():
         # temp_reformat_cols(pivoted_output_path, item)
 
     # TODO [!!!!!]: hard coded, need to be fixed              
-    def combine_metrics_tables():
+    def combine_metrics_tables(self):
         """
         Combines multiple metric tables into one unified table.
 
@@ -345,19 +349,18 @@ class CalculationPipeline():
             output_path (str): Path to save the combined table.
         """
 
-        hospital_dest_file = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Hospitals.csv"
-        cooling_dest_file = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Cooling_Center.csv"
-        school_dest_file = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Schools.csv"
-        library_dest_file = "../../../data/results/metrics/PIVOTED_num_dest_within_threshold_30_Libraries.csv"
-        hospital_file = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv"
-        school_file = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv"
-        library_file = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv"
-        cooling_file = "../../../data/results/metrics/PIVOTED_travel_time_reduction_1th_Cooling_Center.csv"
+        hospital_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Hospitals.csv")
+        cooling_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Cooling_Center.csv")
+        school_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Schools.csv")
+        library_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Libraries.csv")
+        hospital_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv")
+        school_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv")
+        library_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv")
+        cooling_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Cooling_Center.csv")
 
-        job_access_file = "../results/CT_job_access_Before_After_Diff_Ontario.csv"
-        neighbourhood_file = "../../../data/visual_data/CTUID-w-Neighborhood.csv"
-        output_path = "../results/total_Metric_Table_Ontario_Line_Update.csv"
-
+        job_access_file = os.path.join(self.metric_path, "CT_job_access_Before_After_Diff_Ontario.csv")
+        neighbourhood_file = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
+        output_path = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update.csv")
         # Load the neighbourhood mapping
         neighbourhood_df = pd.read_csv(neighbourhood_file)
         neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
@@ -378,8 +381,8 @@ class CalculationPipeline():
                     "Travel_Time_Threshold": 30,
                     "Category": category,
                     "Before_After_Benefit": (
-                        "before" if row['Before_After_Benefit'].split('_')[-1] == "before" else
-                        "after" if row['Before_After_Benefit'].split('_')[-1] == "after" else
+                        "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
+                        "after" if row['Before_After_Difference'].split('_')[-1] == "after" else
                         "benefit"
                     ),
                     "Value": row['Value']
@@ -402,8 +405,8 @@ class CalculationPipeline():
                     "Travel_Time_Threshold": row['Value'],
                     "Category": category,
                     "Before_After_Benefit": (
-                        "before" if row['Before_After_Benefit'].split('_')[-1] == "before" else
-                        "after" if row['Before_After_Benefit'].split('_')[-1] == "after" else
+                        "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
+                        "after" if row['Before_After_Difference'].split('_')[-1] == "after" else
                         "benefit"
                     ),
                     "Value": row['Value']
@@ -465,12 +468,12 @@ class CalculationPipeline():
         combined_df.to_csv(output_path, index=False)
         print(f"Combined metrics table saved to {output_path}")
     
-    def reformat_job_access():
-        neighbourhood_path = "../../../data/visual_data/CTUID-w-Neighborhood.csv"
+    def reformat_job_access(self):
+        neighbourhood_path = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
         neighbourhood_df = pd.read_csv(neighbourhood_path)
         neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
 
-        job_commute_file = "commute_time_results_total.csv"
+        job_commute_file = os.path.join(self.metric_path, "commute_time_results_total.csv")
         job_commute_df = pd.read_csv(job_commute_file)
         job_commute_df['CTUID'] = job_commute_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
         if 'Neighbourhood' not in job_commute_df.columns:
@@ -498,7 +501,7 @@ class CalculationPipeline():
             for _, row in job_commute_df.iterrows()
         ])
 
-        total_metric = "../results/total_Metric_Table_Ontario_Line_Update.csv"
+        total_metric = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update.csv")
         total_metric_df = pd.read_csv(total_metric)
         total_metric_df["CTUID"] = total_metric_df["CTUID"].apply(lambda x: f"{float(x):.2f}")
 
@@ -507,7 +510,7 @@ class CalculationPipeline():
             total_metric_df,
             job_commute_transformed
         ], ignore_index=True)
-        update = "../results/total_Metric_Table_Ontario_Line_Update_Commute_total.csv"
+        update = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
         # Save the combined table
         combined_df.to_csv(update, index=False)
         print(f"Combined metrics table saved to {update}")
