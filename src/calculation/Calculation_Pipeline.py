@@ -24,7 +24,7 @@ DATA_PATH = {
     "Employment_Data": os.path.join(PROJECT_ROOT, "draft/Employment_data.csv"),
     "Key_Destination_Data": os.path.join(PROJECT_ROOT, "data/key_destination_data"),
     "CT_Centroid": os.path.join(PROJECT_ROOT, "data/census_tract_data/toronto_ct_centroids1.geojson"),
-    "CTUID_Reference": os.path.join(PROJECT_ROOT, "data/results/CTUIDs.csv"),
+    "CTUID_Reference": os.path.join(PROJECT_ROOT, "src/calculation/results/CTUIDs.csv"),
     "CT_to_Neighbourhood": os.path.join(PROJECT_ROOT, "data/visual_data/CTUID-w-Neighborhood.csv")
 }
 
