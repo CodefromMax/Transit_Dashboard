@@ -3,7 +3,7 @@ import sys
 PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
 sys.path.append(PROJECT_ROOT)
 from src.calculation.Calculation_Pipeline import CalculationPipeline
-
+from src.calculation.Update_total_metric_table import process_job_accessibility
 
 BASELINE_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/raw/latest_feed_version_2024-10-22.zip") 
 # TODO: make sure to change to new gtfs path
@@ -19,3 +19,5 @@ after_calculator = CalculationPipeline(GTFS_PATH=NEW_GTFS_PATH, is_after=True, n
 after_calculator.travel_time_calculation()
 after_calculator.run_metric_calculation(threshold=30,n_closest = 1)
 
+# update total metric table
+process_job_accessibility()

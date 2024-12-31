@@ -6,8 +6,6 @@ sys.path.append(PROJECT_ROOT)
 from src.calculation.Calculation_Pipeline import CalculationPipeline
 from src.calculation.Metric_Calculation.MetricCalculation import MetricCalculation
 
-PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
-
 def process_job_accessibility():
     import pandas as pd
 
@@ -51,7 +49,7 @@ def process_job_accessibility():
     # Define file paths and thresholds
     PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
     neighbourhood_path = os.path.join(PROJECT_ROOT, "data/visual_data/CTUID-w-Neighborhood.csv")
-    update_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update_Commute_total_1.csv")
+    update_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
 
     before_after_paths = [
         (os.path.join(PROJECT_ROOT,"data/results/travel_time/Jobs_baseline.csv"), os.path.join(PROJECT_ROOT,"data/results/CT_job_access_Before_45.csv"), [45]),
@@ -70,7 +68,7 @@ def process_job_accessibility():
 
     # Perform before/after calculations
     for travel_time_matrix_path, output_path, thresholds in before_after_paths:
-        calculate_job_accessibility(travel_time_matrix_path, thresholds, "/Users/max/Desktop/Transit_Dashboard/draft/Employment_data.csv", os.path.join(PROJECT_ROOT,"data/results/CTUIDs.csv"), output_path)
+        calculate_job_accessibility(travel_time_matrix_path, thresholds, "/Users/max/Desktop/Transit_Dashboard/draft/Employment_data.csv", os.path.join(PROJECT_ROOT,"src/calculation/results/CTUIDs.csv"), output_path)
 
     # Combine before/after files
     for job_before_path, job_after_path, combined_job_output_path in combined_paths:
@@ -95,10 +93,12 @@ def process_job_accessibility():
         job_access_transformed_60,
         job_access_transformed_15,
     ], ignore_index=True)
+    
+    updated_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Updated.csv")
 
     # Save the combined table
-    combined_df.to_csv(update_path, index=False)
+    combined_df.to_csv(updated_path, index=False)
     print(f"Combined metrics table saved to {update_path}")
 
-process_job_accessibility()
+
 

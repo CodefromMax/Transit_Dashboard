@@ -9,7 +9,8 @@ data/census/lct_000b21a_e
 boundaries_visualziation/
 census_tract_data/
 key_destination_data/
-results/
+# results* /
+results*
 prepare_data/
 backend/src/gtfs_output/
 
