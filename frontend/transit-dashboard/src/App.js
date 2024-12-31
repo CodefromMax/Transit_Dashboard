@@ -86,10 +86,26 @@ const App = () => {
     setClickData([]);
   };
 
-  const createGTFS = () => {
-    if (clickData.length > 0) {
-      console.log('Create GTFS with Alignment:', clickData);
+  const createGTFS = async () => {
+    if (clickData.length === 0) {
+      console.error('No click data to create GTFS.');
+      return;
     }
+    const response = await fetch("/flask/append-gtfs", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(clickData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create GTFS');
+    }
+
+    const result = await response.json();
+    console.log('GTFS created successfully:', result);
   };
 
   // Fetch Census data once
