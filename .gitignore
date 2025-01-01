@@ -13,7 +13,7 @@ key_destination_data/
 results*
 prepare_data/
 backend/src/gtfs_output/
-
+visual_data/
 # dependencies
 frontend/transit-dashboard/node_modules
 frontend/transit-dashboard/.pnp
