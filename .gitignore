@@ -13,6 +13,9 @@ key_destination_data/
 results*
 prepare_data/
 backend/src/gtfs_output/
+gtfs_output.zip
+
+
 visual_data/
 # dependencies
 frontend/transit-dashboard/node_modules
