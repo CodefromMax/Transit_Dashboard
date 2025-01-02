@@ -9,10 +9,11 @@ data/census/lct_000b21a_e
 boundaries_visualziation/
 census_tract_data/
 key_destination_data/
-results/
+# results* /
+results*
 prepare_data/
 backend/src/gtfs_output/
-
+visual_data/
 # dependencies
 frontend/transit-dashboard/node_modules
 frontend/transit-dashboard/.pnp
@@ -40,6 +41,8 @@ __pycache__/*
 *.pyc
 
 # data
-# *.json
-# *.geojson
-# *.csv
+*.json
+*.geojson
+*.csv
+
+*.txt
