@@ -16,7 +16,7 @@ backend/src/gtfs_output/
 gtfs_output.zip
 
 
-visual_data/
+# visual_data/
 # dependencies
 frontend/transit-dashboard/node_modules
 frontend/transit-dashboard/.pnp
@@ -46,6 +46,6 @@ __pycache__/*
 # data
 *.json
 *.geojson
-*.csv
+# *.csv
 
 *.txt
