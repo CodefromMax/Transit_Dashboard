@@ -100,5 +100,5 @@ def process_job_accessibility():
     combined_df.to_csv(updated_path, index=False)
     print(f"Combined metrics table saved to {update_path}")
 
-
+process_job_accessibility()
 
