@@ -128,7 +128,7 @@ class CalculationPipeline():
         - Need to make it able to run for ANY key destination (n-th)
     """            
 
-    def run_metric_calculation(self, threshold, n_closest):
+    def run_metric_calculation(self, threshold, n_closest, final_output_path= None):
         """
         Caculate the metrics
         """
@@ -206,9 +206,9 @@ class CalculationPipeline():
         
         if self.is_after:
             # combine all metric files 
-            self.combine_metrics_tables()
+            self.combine_metrics_tables(threshold=threshold)
             print("[DEBUG]: combine all metric files (except for job ) COMPLETED")
-            self.reformat_job_access()
+            self.reformat_job_access(final_output_path)
             print("[DEBUG]: ALL METRICS COMPLETED AND SAVED TO DESTINATION")
 
 
@@ -335,7 +335,7 @@ class CalculationPipeline():
         # temp_reformat_cols(pivoted_output_path, item)
 
     # TODO [!!!!!]: hard coded, need to be fixed              
-    def combine_metrics_tables(self):
+    def combine_metrics_tables(self, threshold):
         """
         Combines multiple metric tables into one unified table.
 
@@ -349,10 +349,10 @@ class CalculationPipeline():
             output_path (str): Path to save the combined table.
         """
 
-        hospital_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Hospitals.csv")
-        cooling_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Cooling_Center.csv")
-        school_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Schools.csv")
-        library_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Libraries.csv")
+        hospital_dest_file = os.path.join(PROJECT_ROOT, f"data/results/metrics/PIVOTED_num_dest_within_threshold_{threshold}_Hospitals.csv")
+        cooling_dest_file = os.path.join(PROJECT_ROOT, f"data/results/metrics/PIVOTED_num_dest_within_threshold_{threshold}_Cooling_Center.csv")
+        school_dest_file = os.path.join(PROJECT_ROOT, f"data/results/metrics/PIVOTED_num_dest_within_threshold_{threshold}_Schools.csv")
+        library_dest_file = os.path.join(PROJECT_ROOT, f"data/results/metrics/PIVOTED_num_dest_within_threshold_{threshold}_Libraries.csv")
         hospital_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv")
         school_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv")
         library_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv")
@@ -378,7 +378,7 @@ class CalculationPipeline():
                     "Neighbourhoods": row['Neighbourhood'],
                     "Metric_Type": "Social",
                     "Metric_Name": metric_name,
-                    "Travel_Time_Threshold": 30,
+                    "Travel_Time_Threshold": threshold,
                     "Category": category,
                     "Before_After_Benefit": (
                         "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
@@ -437,7 +437,7 @@ class CalculationPipeline():
                 "Neighbourhoods": row['Neighbourhood'],
                 "Metric_Type": "Economic",
                 "Metric_Name": "Job Access",
-                "Travel_Time_Threshold": 30,
+                "Travel_Time_Threshold": threshold,
                 "Category": row['Job_type'],
                 "Before_After_Benefit": (
                     "before" if row['Time'].lower() == "before" else
@@ -468,7 +468,7 @@ class CalculationPipeline():
         combined_df.to_csv(output_path, index=False)
         print(f"Combined metrics table saved to {output_path}")
     
-    def reformat_job_access(self):
+    def reformat_job_access(self, final_output_path):
         neighbourhood_path = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
         neighbourhood_df = pd.read_csv(neighbourhood_path)
         neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
@@ -510,7 +510,7 @@ class CalculationPipeline():
             total_metric_df,
             job_commute_transformed
         ], ignore_index=True)
-        update = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
+        update = final_output_path
         # Save the combined table
         combined_df.to_csv(update, index=False)
         print(f"Combined metrics table saved to {update}")
