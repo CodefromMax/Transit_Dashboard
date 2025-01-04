@@ -94,6 +94,22 @@ def process_job_accessibility():
         job_access_transformed_15,
     ], ignore_index=True)
     
+
+    # Filter rows where Metric_Name equals "Job Commute Time"
+    job_commute_time_rows = combined_df['Metric_Name'] == 'Job Commute Time'
+    # Ensure Travel_Time_Threshold is treated as string for manipulation
+    combined_df['Travel_Time_Threshold'] = combined_df['Travel_Time_Threshold'].astype(str)
+    # Update the Travel_Time_Threshold column for these rows
+    combined_df.loc[job_commute_time_rows, 'Travel_Time_Threshold'] = (
+        combined_df.loc[job_commute_time_rows, 'Travel_Time_Threshold']
+        .str.split()
+        .str[-1]
+    )
+    combined_df['CTUID'] = combined_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+
+
+
+
     updated_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update_Commute_total_add.csv")
 
     # Save the combined table
