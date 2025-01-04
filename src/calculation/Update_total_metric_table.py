@@ -94,11 +94,13 @@ def process_job_accessibility():
         job_access_transformed_15,
     ], ignore_index=True)
     
-    updated_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Updated.csv")
+    updated_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update_Commute_total_add.csv")
 
     # Save the combined table
+    
     combined_df.to_csv(updated_path, index=False)
-    print(f"Combined metrics table saved to {update_path}")
+    print(f"Combined metrics table saved to {updated_path}")
 
 
 
+# process_job_accessibility()
