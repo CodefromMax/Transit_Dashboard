@@ -1,17 +1,11 @@
-import csv
 import math
 import os
-import shutil
-import traceback
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Union
-import gtfs_kit as gk
+from datetime import datetime
+from typing import Dict, List
 import pandas as pd
-from flask import Flask, jsonify, request
-from pathlib import Path
 from helper.find_project_root import find_project_root
-
-app = Flask(__name__)
+import shutil
+from pathlib import Path
 
 # Constants
 PROJECT_ROOT = find_project_root("Transit_Dashboard")
@@ -33,6 +27,19 @@ GTFS_FILES = [
     "trips",
 ]
 
+def zip_output_folder(output_folder: str, zip_name: str):
+        """
+        Compress the output folder into a ZIP file.
+        """
+        output_folder = Path(output_folder)
+        zip_name = Path(zip_name)
+
+        if not output_folder.is_dir():
+            raise ValueError(f"The specified folder path does not exist or is not a directory: {output_folder}")
+
+        # Create the ZIP archive
+        shutil.make_archive(zip_name, 'zip', output_folder)
+        print(f"Folder '{output_folder}' has been zipped to '{zip_name}.zip'")
 
 class GTFSTime:
     def __init__(self, time_str: str = "00:00:00"):
@@ -424,38 +431,3 @@ class GTFSManager:
             **{f"{file}_file": self.paths["output"][file] for file in GTFS_FILES},
         }
 
-
-# Flask routes
-@app.route("/append-gtfs", methods=["POST"])
-def append_gtfs_endpoint():
-    """API endpoint to append GTFS data."""
-    try:
-        if not request.json:
-            return jsonify({"error": "Invalid or missing JSON payload"}), 400
-
-        gtfs_manager = GTFSManager()
-        result = gtfs_manager.process_new_data(request.json)
-        def zip_output_folder(output_folder: str, zip_name: str):
-            """
-            Compress the output folder into a ZIP file.
-            """
-            output_folder = Path(output_folder)
-            zip_name = Path(zip_name)
-
-            if not output_folder.is_dir():
-                raise ValueError(f"The specified folder path does not exist or is not a directory: {output_folder}")
-
-            # Create the ZIP archive
-            shutil.make_archive(zip_name, 'zip', output_folder)
-            print(f"Folder '{output_folder}' has been zipped to '{zip_name}.zip'")
-
-        zip_output_folder(OUTPUT_DIR, "gtfs_output")
-
-        return jsonify(result), 200
-
-    except Exception as e:
-        return jsonify({"error": traceback.format_exc()}), 500
-
-
-if __name__ == "__main__":
-    app.run(port=4000, debug=True)

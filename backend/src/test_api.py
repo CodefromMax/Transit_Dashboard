@@ -10,9 +10,9 @@ with open(test_data_file, "r") as file:
     payload = json.load(file)
 
 # Endpoint URL
-url = "http://127.0.0.1:4000/append-gtfs"
+url = "http://127.0.0.1:4000/generate-metric-table"
 # Send POST request
-response = requests.post(url, json=payload)
+response = requests.get(url, json=payload, timeout=120)
 
 # Print response
 print("Status Code:", response.status_code)

@@ -44,3 +44,7 @@ FRONTEND RUN
 1. Run 'python -m http.server 8080' in the Transit_Dashboard directory
 2. In a new terminal, 'cd frontend/transit-dashboard/'
 3. Run 'npm start'
+
+
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 21)' >> ~/.zshrc
+source ~/.zshrc

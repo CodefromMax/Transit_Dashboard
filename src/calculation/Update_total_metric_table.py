@@ -1,10 +1,12 @@
 import os
 import sys
 import pandas as pd
-PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
+from helper.find_project_root import find_project_root
+
+PROJECT_ROOT = find_project_root("Transit_Dashboard")
 sys.path.append(PROJECT_ROOT)
-from src.calculation.Calculation_Pipeline import CalculationPipeline
-from src.calculation.Metric_Calculation.MetricCalculation import MetricCalculation
+from calculation.Calculation_Pipeline import CalculationPipeline
+from calculation.Metric_Calculation.MetricCalculation import MetricCalculation
 
 def process_job_accessibility():
     import pandas as pd

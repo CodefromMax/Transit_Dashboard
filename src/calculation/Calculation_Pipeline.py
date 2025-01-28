@@ -6,21 +6,21 @@ import pandas as pd
 import os
 import sys
 
+from helper.find_project_root import find_project_root
+
 # [!!!!!] make sure ends with /Transit_Dashboard -> project root
-PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
+PROJECT_ROOT = find_project_root("Transit_Dashboard")
 # os.path.abspath(os.path.join('../..')) 
 sys.path.append(PROJECT_ROOT)
-print(PROJECT_ROOT)
 
 # import calculation paths
-from src.calculation.travel_time_matrix.TravelTimeCalculation import TravelTimeCalculation
-from src.calculation.Metric_Calculation.MetricCalculation import MetricCalculation
+from calculation.travel_time_matrix.TravelTimeCalculation import TravelTimeCalculation
+from calculation.Metric_Calculation.MetricCalculation import MetricCalculation
 
 # path to data
 # TODO [!!!!!]: move CTUID_Reference to /data/visual_data or /data/census_tract_data
 DATA_PATH = {
-    "OSM": "/Users/max/Desktop/Transit_Dashboard/data/OSM_data/Toronto.osm.pbf", 
-    # os.path.join(PROJECT_ROOT, "data/OSM_data/Toronto.osm.pbf"),
+    "OSM": os.path.join(PROJECT_ROOT, "data/OSM_data/Toronto.osm.pbf"), 
     "Employment_Data": os.path.join(PROJECT_ROOT, "draft/Employment_data.csv"),
     "Key_Destination_Data": os.path.join(PROJECT_ROOT, "data/key_destination_data"),
     "CT_Centroid": os.path.join(PROJECT_ROOT, "data/census_tract_data/toronto_ct_centroids1.geojson"),
@@ -39,7 +39,6 @@ CATEGORY = {
 # GTFS PATH
 NEW_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/raw/latest_feed_version_2024-10-22.zip") 
 BASELINE_GTFS_PATH = os.path.join(PROJECT_ROOT, "data/GTFS_data/raw/latest_feed_version_2024-10-22.zip") 
-
 
 class CalculationPipeline():
     def __init__(self, GTFS_PATH, is_after, name):
@@ -84,8 +83,9 @@ class CalculationPipeline():
         """
         # initialize travel time calculator object and build transportation network based on gtfs data
         TTCalculator = TravelTimeCalculation(DATA_PATH['OSM'], self.GTFS_PATH)
+        print("Building transport network...")
         TTCalculator.build_transport_network()
-
+        print('built transport network')
         for metric in METRICS:
             # for environmental metric, no travel time calculation. 
             if metric == "Environmental":

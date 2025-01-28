@@ -26,6 +26,8 @@ class TravelTimeCalculation:
         Builds the transport network using the provided OSM and GTFS data.
         """
         start_time = time.time()
+        
+        print(self.osm_path, self.gtfs_path)
         self.transport_network = r5py.TransportNetwork(self.osm_path, [self.gtfs_path])
         elapsed_time = time.time() - start_time
         print(f"Transport network built in {elapsed_time:.2f} seconds.")
