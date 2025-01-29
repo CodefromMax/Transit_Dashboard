@@ -15,7 +15,6 @@ prepare_data/
 backend/src/gtfs_output/
 gtfs_output.zip
 
-
 # visual_data/
 # dependencies
 frontend/transit-dashboard/node_modules
@@ -49,3 +48,8 @@ __pycache__/*
 # *.csv
 
 *.txt
+
+#database related
+config.cfg
+src/helper/unique-perigee-442422-s0-17223e890fa1.json
+cloud-sql-proxy
