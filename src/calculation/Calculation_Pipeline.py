@@ -460,7 +460,6 @@ class CalculationPipeline():
             library_transformed,
             cooling_transformed,
             school_transformed,
-            library_transformed,
             job_access_transformed
         ], ignore_index=True)
 
