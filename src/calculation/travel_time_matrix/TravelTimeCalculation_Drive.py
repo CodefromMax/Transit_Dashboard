@@ -86,7 +86,7 @@ class TravelTimeCalculation:
             self.transport_network,
             origins=origins,
             destinations=destinations,
-            transport_modes=[r5py.TransportMode.TRANSIT],
+            transport_modes=[r5py.TransportMode.CAR],
             # /TransportMode.CAR
             departure=departure_time,
             departure_time_window=datetime.timedelta(hours=2),
