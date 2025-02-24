@@ -31,7 +31,7 @@ DATA_PATH = {
 # Metric Types: 
 METRICS = ["Social", "Economic", "Environmental"]
 CATEGORY = {
-    "Social": ["Hospitals", "Schools", "Libraries", "Cooling_Center"],
+    "Social": ["Hospitals", "Schools", "Libraries", "Cooling_Center", "Supermarkets"],
     "Economic": ["Jobs"],
     "Environmental": ["CO2"]
 }
@@ -333,40 +333,35 @@ class CalculationPipeline():
         pivoted_output_path = os.path.join(PROJECT_ROOT, "data/results/metrics", "PIVOTED_travel_time_reduction_"+str(n_closest)+"th_"+item+".csv")
         MetricCalculation.pivot_totals_to_rows(csv_output_path, pivoted_output_path)
         # temp_reformat_cols(pivoted_output_path, item)
-
-    # TODO [!!!!!]: hard coded, need to be fixed              
     def combine_metrics_tables(self):
         """
         Combines multiple metric tables into one unified table.
-
-        Args:
-            hospital_dest_file (str): Path to the hospital destinations file.
-            pivoted_file (str): Path to the pivoted travel time reduction file.
-            library_file (str): Path to the library file.
-            cooling_file (str): Path to the cooling center file.
-            job_access_file (str): Path to the job access file.
-            neighbourhood_file (str): Path to the CTUID-Neighbourhood mapping file.
-            output_path (str): Path to save the combined table.
+        For the accessible destinations metric, we now use thresholds of 15, 30, 45, and 60,
+        and we add additional rows that show the difference between successive thresholds
+        (i.e. 30-15, 45-30, and 60-45). Travel time to first destination remains unchanged.
+        This function now also processes Supermarkets, including their first destination travel time.
         """
 
-        hospital_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Hospitals.csv")
-        cooling_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Cooling_Center.csv")
-        school_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Schools.csv")
-        library_dest_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_num_dest_within_threshold_30_Libraries.csv")
-        hospital_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv")
-        school_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv")
-        library_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv")
-        cooling_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Cooling_Center.csv")
+        PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+        # File paths for travel time to first destination and job access (unchanged for existing categories)
+        hospital_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv")
+        school_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Schools.csv")
+        library_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Libraries.csv")
+        cooling_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Cooling_Center.csv")
+        # New travel time file for Supermarkets
+        supermarket_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Supermarkets.csv")
 
         job_access_file = os.path.join(self.metric_path, "CT_job_access_Before_After_Diff_Ontario.csv")
         neighbourhood_file = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
         output_path = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update.csv")
+
         # Load the neighbourhood mapping
         neighbourhood_df = pd.read_csv(neighbourhood_file)
         neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
 
-        # Function to process individual datasets
-        def process_dataset(file_path, metric_name, category):
+        # Function to process destination datasets with a given threshold
+        def process_destination_dataset(file_path, metric_name, category, threshold):
             df = pd.read_csv(file_path)
             df['CTUID'] = df['CTUID'].apply(lambda x: f"{float(x):.2f}")
             if 'Neighbourhood' not in df.columns:
@@ -378,7 +373,7 @@ class CalculationPipeline():
                     "Neighbourhoods": row['Neighbourhood'],
                     "Metric_Type": "Social",
                     "Metric_Name": metric_name,
-                    "Travel_Time_Threshold": 30,
+                    "Travel_Time_Threshold": threshold,
                     "Category": category,
                     "Before_After_Benefit": (
                         "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
@@ -389,8 +384,9 @@ class CalculationPipeline():
                 }
                 for _, row in df.iterrows()
             ])
-        # Function to process individual datasets
-        def process_dataset2(file_path, metric_name, category):
+
+        # Function for travel time to first destination metrics
+        def process_tt_dataset(file_path, metric_name, category):
             df = pd.read_csv(file_path)
             df['CTUID'] = df['CTUID'].apply(lambda x: f"{float(x):.2f}")
             if 'Neighbourhood' not in df.columns:
@@ -402,7 +398,7 @@ class CalculationPipeline():
                     "Neighbourhoods": row['Neighbourhood'],
                     "Metric_Type": "Social",
                     "Metric_Name": metric_name,
-                    "Travel_Time_Threshold": row['Value'],
+                    "Travel_Time_Threshold": row['Value'],  # Assumes the CSV holds the travel time value
                     "Category": category,
                     "Before_After_Benefit": (
                         "before" if row['Before_After_Difference'].split('_')[-1] == "before" else
@@ -414,17 +410,55 @@ class CalculationPipeline():
                 for _, row in df.iterrows()
             ])
 
-        # Process each dataset
-        hospital_dest_transformed = process_dataset(hospital_dest_file, "Number of Destinations Accessible", "Hospital")
-        cooling_dest_transformed = process_dataset(cooling_dest_file, "Number of Destinations Accessible", "Cooling Centre")
-        school_dest_transformed = process_dataset(school_dest_file, "Number of Destinations Accessible", "School")
-        library_dest_transformed = process_dataset(library_dest_file, "Number of Destinations Accessible", "Library")
+        # Process destination datasets.
+        # Define the thresholds and categories. Note: category keys should match the ones used elsewhere.
+        dest_thresholds = [15, 30, 45, 60]
+        categories = {
+            "Hospital": "Hospitals",
+            "Cooling Centre": "Cooling_Center",
+            "School": "Schools",
+            "Library": "Libraries",
+            "Supermarket": "Supermarkets"  # New entry for Supermarkets
+        }
+        all_destination_rows = []
 
-        hospital_transformed = process_dataset2(hospital_file, "Travel Time to First Destination", "Hospital")
-        cooling_transformed = process_dataset2(cooling_file, "Travel Time to First Destination", "Cooling Centre")
-        school_transformed = process_dataset2(school_file, "Travel Time to First Destination", "School")
-        library_transformed = process_dataset2(library_file, "Travel Time to First Destination", "Library")
-        
+        for cat, file_suffix in categories.items():
+            # For each threshold, load the corresponding file and process it.
+            dest_dfs = []
+            for t in dest_thresholds:
+                file_path = os.path.join(PROJECT_ROOT, f"data/results/metrics/PIVOTED_num_dest_within_threshold_{t}_{file_suffix}.csv")
+                dest_dfs.append(process_destination_dataset(file_path, "Number of Destinations Accessible", cat, t))
+            # Combine the thresholds for this category
+            dest_cat_df = pd.concat(dest_dfs, ignore_index=True)
+            all_destination_rows.append(dest_cat_df)
+
+            # Pivot the data so that each row (grouped by CTUID, before/after, etc.) has columns for each threshold
+            pivot_cols = ["CTUID", "Neighbourhoods", "Metric_Type", "Metric_Name", "Category", "Before_After_Benefit"]
+            pivot_df = dest_cat_df.pivot_table(index=pivot_cols, columns="Travel_Time_Threshold", values="Value").reset_index()
+
+            # Compute incremental differences for thresholds 30, 45, and 60
+            deltas = []
+            for high, low in [(30, 15), (45, 30), (60, 45)]:
+                temp = pivot_df.copy()
+                temp["Value"] = temp[high] - temp[low]
+                temp["Travel_Time_Threshold"] = high
+                # Update the metric name to reflect the incremental value
+                temp["Metric_Name"] = "Number of Destinations Accessible (Incremental)"
+                temp = temp[pivot_cols + ["Travel_Time_Threshold", "Value"]]
+                deltas.append(temp)
+            # Append the incremental rows to our destination rows list
+            all_destination_rows.append(pd.concat(deltas, ignore_index=True))
+
+        # Combine all destination rows
+        destinations_combined = pd.concat(all_destination_rows, ignore_index=True)
+
+        # Process travel time to first destination datasets for each key destination
+        hospital_tt_transformed = process_tt_dataset(hospital_tt_file, "Travel Time to First Destination", "Hospital")
+        cooling_tt_transformed = process_tt_dataset(cooling_tt_file, "Travel Time to First Destination", "Cooling Centre")
+        school_tt_transformed = process_tt_dataset(school_tt_file, "Travel Time to First Destination", "School")
+        library_tt_transformed = process_tt_dataset(library_tt_file, "Travel Time to First Destination", "Library")
+        supermarket_tt_transformed = process_tt_dataset(supermarket_tt_file, "Travel Time to First Destination", "Supermarket")
+
         # Process the job access dataset
         job_access_df = pd.read_csv(job_access_file)
         job_access_df['CTUID'] = job_access_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
@@ -444,29 +478,26 @@ class CalculationPipeline():
                     "after" if row['Time'].lower() == "after" else
                     "benefit"
                 ),
-                
                 "Value": row['Num_jobs']
             }
             for _, row in job_access_df.iterrows()
         ])
 
-        # Combine all datasets
+        # Combine all datasets into one DataFrame
         combined_df = pd.concat([
-            hospital_dest_transformed,
-            cooling_dest_transformed,
-            school_dest_transformed,
-            library_dest_transformed,
-            hospital_transformed,
-            library_transformed,
-            cooling_transformed,
-            school_transformed,
+            destinations_combined,
+            hospital_tt_transformed,
+            cooling_tt_transformed,
+            school_tt_transformed,
+            library_tt_transformed,
+            supermarket_tt_transformed,
             job_access_transformed
         ], ignore_index=True)
 
         # Save the combined table
         combined_df.to_csv(output_path, index=False)
         print(f"Combined metrics table saved to {output_path}")
-    
+
     def reformat_job_access(self):
         neighbourhood_path = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
         neighbourhood_df = pd.read_csv(neighbourhood_path)
