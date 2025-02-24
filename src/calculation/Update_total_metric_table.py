@@ -49,7 +49,7 @@ def process_job_accessibility():
     # Define file paths and thresholds
     PROJECT_ROOT = "/Users/max/Desktop/Transit_Dashboard"
     neighbourhood_path = os.path.join(PROJECT_ROOT, "data/visual_data/CTUID-w-Neighborhood.csv")
-    update_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
+    update_path = os.path.join(PROJECT_ROOT,"data/results/metrics/total_Metric_Table_Ontario_Line_Update.csv")
 
     before_after_paths = [
         (os.path.join(PROJECT_ROOT,"data/results/travel_time/Jobs_baseline.csv"), os.path.join(PROJECT_ROOT,"data/results/CT_job_access_Before_45.csv"), [45]),
@@ -98,7 +98,7 @@ def process_job_accessibility():
 
     # Save the combined table
     combined_df.to_csv(updated_path, index=False)
-    print(f"Combined metrics table saved to {update_path}")
+    print(f"Combined metrics table saved to {updated_path}")
 
 # process_job_accessibility()
 

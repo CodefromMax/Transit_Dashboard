@@ -156,60 +156,116 @@ class CalculationPipeline():
                         MetricCalculation.combine_job_access_before_after(job_access_baseline, output_job_accessible, output_combined_job_access)
                         print("[DEBUG]: Economic - job access COMPLETED")
                         
-                        # calculate for commute time reduction
-                        before_path = os.path.join(self.travel_time_path, "Jobs_baseline.csv")
-                        after_path = os.path.join(self.travel_time_path, "Jobs_after.csv")
+                        # # calculate for commute time reduction
+                        # before_path = os.path.join(self.travel_time_path, "Jobs_baseline.csv")
+                        # after_path = os.path.join(self.travel_time_path, "Jobs_after.csv")
                         
-                        commute_time_thresholds = [(0, 15), (15, 30), (30, 45), (45, 60)]
-                        MetricCalculation.calculate_commute_time_reduction(
-                            before_matrix_path=before_path,
-                            after_matrix_path=after_path,
-                            thresholds=commute_time_thresholds,
-                            category="job",
-                            output_path=os.path.join(self.metric_path, "commute_time_results_total.csv")
+                        # commute_time_thresholds = [(0, 15), (15, 30), (30, 45), (45, 60)]
+                        # MetricCalculation.calculate_commute_time_reduction(
+                        #     before_matrix_path=before_path,
+                        #     after_matrix_path=after_path,
+                        #     thresholds=commute_time_thresholds,
+                        #     category="job",
+                        #     output_path=os.path.join(self.metric_path, "commute_time_results_total.csv")
+                        # )
+
+                        # print("[DEBUG]: Economic - commute time reduction COMPLETED")
+
+                else:
+                    for t in [15, 30, 45, 60]:
+                        output_num_dest = os.path.join(
+                            self.metric_path, 
+                            "dest_within_"+str(t)+"_minutes_"+category+self.out_suffix+".csv"
                         )
+                        output_n_th_closest = os.path.join(
+                            self.metric_path, 
+                            "travel_time_to_"+str(n_closest)+"_th_closest_"+category+self.out_suffix+".csv"
+                        )
+                        # Generate metrics for current threshold 't'
+                        MetricCalculator.filter_destinations(output_path=output_num_dest, threshold=t)
+                        MetricCalculator.get_nth_travel_time(n=n_closest, output_path=output_n_th_closest)
 
-                        print("[DEBUG]: Economic - commute time reduction COMPLETED")
+                        if self.is_after:
+                            dest_threshold_before_csv_path = os.path.join(
+                                self.metric_path,  
+                                "dest_within_"+str(t)+"_minutes_"+category+"_baseline.csv"
+                            )
+                            dest_threshold_after_csv_path = os.path.join(
+                                self.metric_path,  
+                                "dest_within_"+str(t)+"_minutes_"+category+"_after.csv"
+                            )
+                            n_closest_before_csv_path = os.path.join(
+                                self.metric_path, 
+                                "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_baseline.csv"
+                            )
+                            n_closest_after_csv_path = os.path.join(
+                                self.metric_path, 
+                                "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_after.csv"
+                            )
+                            print("[DEBUG]: calculate_num_key_dest_diff threshold:", t)
+                            self.calculate_num_key_dest_diff(
+                                dest_threshold_before_csv_path, 
+                                dest_threshold_after_csv_path, 
+                                DATA_PATH["CTUID_Reference"], 
+                                DATA_PATH["CT_to_Neighbourhood"], 
+                                category, t
+                            )
+                            print("[DEBUG]: Social - number of key destination accessible COMPLETED")
+                            
+                            self.calculate_key_dest_trave_time_red(
+                                n_closest_before_csv_path, 
+                                n_closest_after_csv_path, 
+                                DATA_PATH["CTUID_Reference"], 
+                                DATA_PATH["CT_to_Neighbourhood"], 
+                                category, n_closest=n_closest
+                            )
+                            print("[DEBUG]: Social - travel time reduction to first key destination COMPLETED")
 
-    
-                # Social (key destination) metrics
-                else: 
-                    # Social metric has three sub metrics
-                    # num_dest, travel time to n-th closest key destination will be calculated here
-                    # sub metric number of people accessible will handled in the visualization frontend
-                    output_num_dest = os.path.join(self.metric_path, "dest_within_"+str(threshold)+"_minutes_"+category+self.out_suffix+".csv")
-                    output_n_th_closest = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+self.out_suffix+".csv")
-                    MetricCalculator.filter_destinations(output_path = output_num_dest, threshold = threshold)
-                    MetricCalculator.get_nth_travel_time(n = n_closest, output_path = output_n_th_closest)
-
-                    if self.is_after:
-                        # num_dest_baseline = os.path.join(self.metric_path, "dest_within_"+str(threshold)+"_minutes_"+category+"_baseline.csv")
-                        # [add_column_with_join] base_df, join_df, base_ctuid_col, join_ctuid_col, join_column_name, new_column name
-                        dest_threshold_before_csv_path = os.path.join(self.metric_path,  "dest_within_"+str(threshold)+"_minutes_"+category+"_baseline.csv")
-                        dest_threshold_after_csv_path = os.path.join(self.metric_path,  "dest_within_"+str(threshold)+"_minutes_"+category+"_after.csv")
-                        
-                        # paths for travel time n_closest key destination
-                        n_closest_before_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_baseline.csv")
-                        n_closest_after_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_after.csv")
-                        
-                        print("[DEBUG]: calculate_num_key_dest_diff threshold: ", threshold)
-                        self.calculate_num_key_dest_diff(dest_threshold_before_csv_path, dest_threshold_after_csv_path, 
-                                                         DATA_PATH["CTUID_Reference"], DATA_PATH["CT_to_Neighbourhood"], 
-                                                         category, threshold)
-                        print("[DEBUG]: Social - number of key destination accessible COMPLETED")
-
-                        
-                        self.calculate_key_dest_trave_time_red(n_closest_before_csv_path, n_closest_after_csv_path, 
-                                                               DATA_PATH["CTUID_Reference"], DATA_PATH["CT_to_Neighbourhood"], 
-                                                               category, n_closest=n_closest)
-                        print("[DEBUG]: Social - travel time reduction to first key destination COMPLETED")
-        
         if self.is_after:
             # combine all metric files 
             self.combine_metrics_tables()
-            print("[DEBUG]: combine all metric files (except for job ) COMPLETED")
-            self.reformat_job_access()
-            print("[DEBUG]: ALL METRICS COMPLETED AND SAVED TO DESTINATION")
+            print("[DEBUG]: combine all metric files (except for job) COMPLETED")
+            # self.reformat_job_access()
+            # print("[DEBUG]: ALL METRICS COMPLETED AND SAVED TO DESTINATION")
+
+        #         # Social (key destination) metrics
+        #         else: 
+        #             # Social metric has three sub metrics
+        #             # num_dest, travel time to n-th closest key destination will be calculated here
+        #             # sub metric number of people accessible will handled in the visualization frontend
+        #             output_num_dest = os.path.join(self.metric_path, "dest_within_"+str(threshold)+"_minutes_"+category+self.out_suffix+".csv")
+        #             output_n_th_closest = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+self.out_suffix+".csv")
+        #             MetricCalculator.filter_destinations(output_path = output_num_dest, threshold = threshold)
+        #             MetricCalculator.get_nth_travel_time(n = n_closest, output_path = output_n_th_closest)
+
+        #             if self.is_after:
+        #                 # num_dest_baseline = os.path.join(self.metric_path, "dest_within_"+str(threshold)+"_minutes_"+category+"_baseline.csv")
+        #                 # [add_column_with_join] base_df, join_df, base_ctuid_col, join_ctuid_col, join_column_name, new_column name
+        #                 dest_threshold_before_csv_path = os.path.join(self.metric_path,  "dest_within_"+str(threshold)+"_minutes_"+category+"_baseline.csv")
+        #                 dest_threshold_after_csv_path = os.path.join(self.metric_path,  "dest_within_"+str(threshold)+"_minutes_"+category+"_after.csv")
+                        
+        #                 # paths for travel time n_closest key destination
+        #                 n_closest_before_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_baseline.csv")
+        #                 n_closest_after_csv_path = os.path.join(self.metric_path, "travel_time_to_"+str(n_closest)+"_th_closest_"+category+"_after.csv")
+                        
+        #                 print("[DEBUG]: calculate_num_key_dest_diff threshold: ", threshold)
+        #                 self.calculate_num_key_dest_diff(dest_threshold_before_csv_path, dest_threshold_after_csv_path, 
+        #                                                  DATA_PATH["CTUID_Reference"], DATA_PATH["CT_to_Neighbourhood"], 
+        #                                                  category, threshold)
+        #                 print("[DEBUG]: Social - number of key destination accessible COMPLETED")
+
+                        
+        #                 self.calculate_key_dest_trave_time_red(n_closest_before_csv_path, n_closest_after_csv_path, 
+        #                                                        DATA_PATH["CTUID_Reference"], DATA_PATH["CT_to_Neighbourhood"], 
+        #                                                        category, n_closest=n_closest)
+        #                 print("[DEBUG]: Social - travel time reduction to first key destination COMPLETED")
+        
+        # if self.is_after:
+        #     # combine all metric files 
+        #     self.combine_metrics_tables()
+        #     print("[DEBUG]: combine all metric files (except for job ) COMPLETED")
+        #     self.reformat_job_access()
+        #     print("[DEBUG]: ALL METRICS COMPLETED AND SAVED TO DESTINATION")
 
 
 
@@ -342,7 +398,7 @@ class CalculationPipeline():
         This function now also processes Supermarkets, including their first destination travel time.
         """
 
-        PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+        # PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
         # File paths for travel time to first destination and job access (unchanged for existing categories)
         hospital_tt_file = os.path.join(PROJECT_ROOT, "data/results/metrics/PIVOTED_travel_time_reduction_1th_Hospitals.csv")
@@ -430,28 +486,30 @@ class CalculationPipeline():
                 dest_dfs.append(process_destination_dataset(file_path, "Number of Destinations Accessible", cat, t))
             # Combine the thresholds for this category
             dest_cat_df = pd.concat(dest_dfs, ignore_index=True)
-            all_destination_rows.append(dest_cat_df)
-
+            
+            # Keep only raw data for threshold 15
+            dest_cat_15 = dest_cat_df[dest_cat_df["Travel_Time_Threshold"] == 15]
+            all_destination_rows.append(dest_cat_15)
+            
             # Pivot the data so that each row (grouped by CTUID, before/after, etc.) has columns for each threshold
             pivot_cols = ["CTUID", "Neighbourhoods", "Metric_Type", "Metric_Name", "Category", "Before_After_Benefit"]
             pivot_df = dest_cat_df.pivot_table(index=pivot_cols, columns="Travel_Time_Threshold", values="Value").reset_index()
-
-            # Compute incremental differences for thresholds 30, 45, and 60
+            
+            # Compute incremental differences for thresholds 30, 45, and 60 only
             deltas = []
             for high, low in [(30, 15), (45, 30), (60, 45)]:
                 temp = pivot_df.copy()
                 temp["Value"] = temp[high] - temp[low]
                 temp["Travel_Time_Threshold"] = high
                 # Update the metric name to reflect the incremental value
-                temp["Metric_Name"] = "Number of Destinations Accessible (Incremental)"
+                temp["Metric_Name"] = "Number of Destinations Accessible"
                 temp = temp[pivot_cols + ["Travel_Time_Threshold", "Value"]]
                 deltas.append(temp)
-            # Append the incremental rows to our destination rows list
+            # Append only the incremental rows (for thresholds above 15)
             all_destination_rows.append(pd.concat(deltas, ignore_index=True))
 
         # Combine all destination rows
         destinations_combined = pd.concat(all_destination_rows, ignore_index=True)
-
         # Process travel time to first destination datasets for each key destination
         hospital_tt_transformed = process_tt_dataset(hospital_tt_file, "Travel Time to First Destination", "Hospital")
         cooling_tt_transformed = process_tt_dataset(cooling_tt_file, "Travel Time to First Destination", "Cooling Centre")
@@ -498,52 +556,52 @@ class CalculationPipeline():
         combined_df.to_csv(output_path, index=False)
         print(f"Combined metrics table saved to {output_path}")
 
-    def reformat_job_access(self):
-        neighbourhood_path = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
-        neighbourhood_df = pd.read_csv(neighbourhood_path)
-        neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+    # def reformat_job_access(self):
+    #     neighbourhood_path = "/Users/max/Desktop/Transit_Dashboard/data/visual_data/CTUID-w-Neighborhood.csv"
+    #     neighbourhood_df = pd.read_csv(neighbourhood_path)
+    #     neighbourhood_df['CTUID'] = neighbourhood_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
 
-        job_commute_file = os.path.join(self.metric_path, "commute_time_results_total.csv")
-        job_commute_df = pd.read_csv(job_commute_file)
-        job_commute_df['CTUID'] = job_commute_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
-        if 'Neighbourhood' not in job_commute_df.columns:
-            job_commute_df = job_commute_df.merge(neighbourhood_df, on='CTUID', how='left')
-            job_commute_df.rename(columns={'AREA_NAME': 'Neighbourhood'}, inplace=True)
-        job_commute_transformed = pd.DataFrame([
-            {
-                "CTUID": row['CTUID'],
-                "Neighbourhoods": row['Neighbourhood'],
-                "Metric_Type": "Economic",
-                "Metric_Name": "Job Commute Time",
-                "Travel_Time_Threshold": row["Travel_Time_Threshold"],
-                "Category": row['Category'],
-                "Before_After_Benefit": (
-                    "before" if row['Before_After_Benefit'].lower() == "before" else
-                    "after" if row['Before_After_Benefit'].lower() == "after" else
-                    "benefit"
-                ),
+    #     job_commute_file = os.path.join(self.metric_path, "commute_time_results_total.csv")
+    #     job_commute_df = pd.read_csv(job_commute_file)
+    #     job_commute_df['CTUID'] = job_commute_df['CTUID'].apply(lambda x: f"{float(x):.2f}")
+    #     if 'Neighbourhood' not in job_commute_df.columns:
+    #         job_commute_df = job_commute_df.merge(neighbourhood_df, on='CTUID', how='left')
+    #         job_commute_df.rename(columns={'AREA_NAME': 'Neighbourhood'}, inplace=True)
+    #     job_commute_transformed = pd.DataFrame([
+    #         {
+    #             "CTUID": row['CTUID'],
+    #             "Neighbourhoods": row['Neighbourhood'],
+    #             "Metric_Type": "Economic",
+    #             "Metric_Name": "Job Commute Time",
+    #             "Travel_Time_Threshold": row["Travel_Time_Threshold"],
+    #             "Category": row['Category'],
+    #             "Before_After_Benefit": (
+    #                 "before" if row['Before_After_Benefit'].lower() == "before" else
+    #                 "after" if row['Before_After_Benefit'].lower() == "after" else
+    #                 "benefit"
+    #             ),
                 
-                "Value": (row['Average Value'] if row['Before_After_Benefit'].lower() == "before" else
-                        row['Average Value'] if row['Before_After_Benefit'].lower() == "after" else
-                        row['Total Value'])
+    #             "Value": (row['Average Value'] if row['Before_After_Benefit'].lower() == "before" else
+    #                     row['Average Value'] if row['Before_After_Benefit'].lower() == "after" else
+    #                     row['Total Value'])
                 
-            }
-            for _, row in job_commute_df.iterrows()
-        ])
+    #         }
+    #         for _, row in job_commute_df.iterrows()
+    #     ])
 
-        total_metric = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update.csv")
-        total_metric_df = pd.read_csv(total_metric)
-        total_metric_df["CTUID"] = total_metric_df["CTUID"].apply(lambda x: f"{float(x):.2f}")
+    #     total_metric = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update.csv")
+    #     total_metric_df = pd.read_csv(total_metric)
+    #     total_metric_df["CTUID"] = total_metric_df["CTUID"].apply(lambda x: f"{float(x):.2f}")
 
-        # Combine all datasets
-        combined_df = pd.concat([
-            total_metric_df,
-            job_commute_transformed
-        ], ignore_index=True)
-        update = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
-        # Save the combined table
-        combined_df.to_csv(update, index=False)
-        print(f"Combined metrics table saved to {update}")
+    #     # Combine all datasets
+    #     combined_df = pd.concat([
+    #         total_metric_df,
+    #         job_commute_transformed
+    #     ], ignore_index=True)
+    #     update = os.path.join(self.metric_path, "total_Metric_Table_Ontario_Line_Update_Commute_total.csv")
+    #     # Save the combined table
+    #     combined_df.to_csv(update, index=False)
+    #     print(f"Combined metrics table saved to {update}")
 
 
 

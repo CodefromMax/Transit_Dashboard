@@ -11,12 +11,12 @@ NEW_GTFS_PATH = "/Users/max/Desktop/Transit_Dashboard/data/GTFS_data/gtfs_output
 
 # calculate before scenario
 before_calculator = CalculationPipeline(GTFS_PATH=BASELINE_GTFS_PATH, is_after=False,name = "Before")
-before_calculator.travel_time_calculation()
+# before_calculator.travel_time_calculation()
 before_calculator.run_metric_calculation(30,1)
 
 # calculate after scenario
 after_calculator = CalculationPipeline(GTFS_PATH=NEW_GTFS_PATH, is_after=True, name = "After")
-after_calculator.travel_time_calculation()
+# after_calculator.travel_time_calculation()
 after_calculator.run_metric_calculation(threshold=30,n_closest = 1)
 
 # update total metric table
